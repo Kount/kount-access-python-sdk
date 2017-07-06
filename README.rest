@@ -1,9 +1,6 @@
-# kount-access-python-sdk
-
 Welcome to the kount-access-python-sdk!
 =====================================================
 
-[[https://github.com/Kount/Kount.github.io/blob/master/img/logo.png]]
 
 
 On these pages we'll discuss setting up and using the Kount Access product.
