@@ -1,0 +1,59 @@
+Kount Access Prerequisites
+==============================================
+
+Required information
+==========================
+
+In order to start using the Kount Access services, developers must have several configuration parameters.
+
+
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| Resource                   | Origin / URL                                                                                                 | Type of Request   |
++============================+==============================================================================================================+===================+
+| Merchant ID                | *Provided by Kount*                                                                                          |                   |
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| Agent Web Console          | *Provided by Kount*                                                                                          |                   |
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| API Key                    | Merchant-generated `instructions <Kount-Access-Environments,-API-Keys,-and-Thresholds#creating-an-api-key>`_ |                   |
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| Device Data                | *Provided by Kount*, example:``https://<kount-access-host>``                                                 |``GET``            |
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| API Device ID Request      | *Provided by Kount*, ``https://<kount-access-host>/device``                                                  |``GET``            |
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| API Login Velocity Request | *Provided by Kount*, ``https://<kount-access-host>/velocity``                                                |``POST / RESPONSE``|
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| API Decision Request       | *Provided by Kount*, ``https://<kount-access-host>/decision``                                                |``POST / RESPONSE``|
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+| API Thresholds Endpoint    | *Provided by Kount*                                                                                          |``POST / RESPONSE``|
++----------------------------+--------------------------------------------------------------------------------------------------------------+-------------------+
+
+Using the *Merchant ID* and the *API Key* is mandatory for every request type available for Kount Access tools - Data Collector and Access Service.
+
+Downloading or Install the SDK
+====================================================
+
+If you want to use the Kount Access SDK, you need to download and build it locally. There are some options for downloading:
+
+* **Clone** the ``kount-access-python-sdk`` repository and use its `master` branch if you want to have the latest (unreleased) features, improvements and bugfixes.
+
+* **Download** (the latest) release from the [[Releases|https://github.com/Kount/kount-access-python-sdk/releases]] page for a stable version of the SDK.
+
+* **pip** 
+  ```
+  pip install kount-access-python-sdk
+  ```
+
+.:information_source: **This package works with Python 2.7.13**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------------------------------
+
+**Next steps**:
+
+* [[Creating the API Key|Kount-Access-Environments,-API-Keys,-and-Thresholds#creating-an-api-key]]
+
+* [[Data Collector|Data-Collector]] - learn how to prepare the *sessionId* required for user device data collection and subsequent usage with the Access Service
+
+* [[Access Service endpoints|kount-access-endpoints]] - description of the available request types Kount Access provides
+
+* [[Code examples|kount-access-examples]] - some samples about how to use the Kount Access.
+

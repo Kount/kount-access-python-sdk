@@ -1,0 +1,236 @@
+Kount Access Endpoints
+========================================
+
+Once device information has been obtained from the user trying to log in, three different request types can be posted to the Kount Access Service:
+
+* [[Device|kount-access-endpoints#device-post-httpskount-access-hostdevice]] - gets the identification and details about the user's device
+* [[Velocity|kount-access-endpoints#velocity-post-httpskount-access-hostvelocity]] - gets the counts of access attempts based on device, IP address, username, password, and account (combination of username and password), cross-referenced with this user's current login attempt, within the last minute and last hour
+* [[Decision|kount-access-endpoints#decision-post-httpskount-access-hostdecision]] - calculates a decision based on thresholds (generated in Kount AWC) using computed velocity details as input. It will also return the same device and velocity information that the velocity request would return.
+
+.:information_source: Each response is returned in JSON format  
+
+.:information_source: The response from each of the request types contains a value named ``response_id`` - this is an identifier given to the particular request, which is used for auditing purposes.
+
+.:information_source: The ``version`` parameter, part of the request parameters, is optional.
+
+
+Device: ``POST https://<kount-access-host>/device``
+============================================================
+
+``/device`` Input
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------------+------------------------------------------------------------------------------------------+
+|**Parameter name** | **Parameter description**                                                                |    
++-------------------+------------------------------------------------------------------------------------------+
+|``sessionId``/``s``|A unique session identifier for the user' session, generated and supplied by the merchant |
++-------------------+------------------------------------------------------------------------------------------+
+|``version``/``v``  |API response version for request responses. to receive responses that have geographical   | 
+|                   |information, use version ``2.1.0 (version = "0210")``                                     |
++-------------------+------------------------------------------------------------------------------------------+
+
+
+``/device`` Output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **device** - a data container that includes
+
+  * **id** - the device ID that Kount Access generated to uniquely identify the device the user has used (32 character length hexadecimal)
+
+  * **ipAddress** - the IP address of the device that was used. If the device is behind a proxy, the proxy pierced IP address is given, not the IP of the proxy
+
+  * **ipGeo** - the country in which the device is located, based on the IP address
+
+  * **mobile** - a flag that indicates if the device is a mobile one or not (0 or 1)
+
+  * **proxy** - a flag that indicates if the device is behind a proxy (0 or 1). If a proxy pierced IP is obtained, the flag will be set to `1`. if a pierced IP address is unattainable, the proxy flag is set to ``0``
+
+  * **country** - the country in which the device is located, based on **geoLat, geoLong**. If it is a mobile device and latitude and longitude are given, otherwise, this value is the same as **ipGeo**
+
+  * **region** - the geographical region for the **country** in which the device is located. This field will be absent if no region was found for the device
+
+  * **geoLat** - geographical latitude reported by the device (if it is a mobile device, absent if not)
+
+  * **geoLong** - geographical longitude reported by the device (if it is a mobile device, absent if not)
+
+* **response_id** - the identifier given to the request. This is for auditing purposes.
+
+---------------------------------------------------------------------------------------------------
+
+Velocity: ``POST https://<kount-access-host>/velocity``
+============================================================
+
+
+``/velocity`` Input
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++----------------------+----------------------------------------------------------------------------------+
+| Parameter name       | Parameter description                                                            |
++----------------------+----------------------------------------------------------------------------------+
+| ``sessionId`` / ``s``|A unique session identifier for the user' session, generated and supplied by the  |
+|                      |merchant                                                                          |
++----------------------+----------------------------------------------------------------------------------+
+| ``version`` / ``v``  |API response version for request responses. to receive responses that have        |
+|                      |information, use version ``2.1.0 (version = "0210")``.                            |
++----------------------+----------------------------------------------------------------------------------+
+| `username` / ``uh``  |The value of the username, hashed for security purposes (32/64 character length   |
+|                      |hexadecimal)                                                                      | 
++----------------------+----------------------------------------------------------------------------------+
+| ``password`` / ``ph``|The value of the password, hashed for security purposes (32/64 character length   | 
+|                      |hexadecimal)                                                                      | 
++----------------------+----------------------------------------------------------------------------------+
+| ``account`` / ``ah`` |The value of the account - username concatenated with the password, hashed for    | 
+|                      |security purposes (32/64 character length hexadecimal)                            |
++----------------------+----------------------------------------------------------------------------------+
+
+``/velocity`` Output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **device** - [[The device data, documented above|Kount-Access-Endpoints#device-output]].
+
+* **velocity** - A data container that includes:
+
+  * **account** - A data container that includes:
+
+    * **dlh** - The number of access attempts matching the **account hash** and **device** in the last hour.
+
+    * **dlm** - The number of access attempts matching the **account hash** and **device** in the last minute.
+
+    * **iplh** - The number of access attempts matching the **account hash** and **IP address** in the last hour.
+
+    * **iplm** - The number of access attempts matching the **account hash** and **IP address** in the last m-inute.
+
+    * **plh** - The number of access attempts matching the **account hash** and **password hash** in the last hour.
+
+    * **plm** - The number of access attempts matching the **account hash** and **password hash** in the last minute.
+
+    * **ulh** - The number of access attempts matching the **account hash** and **username hash** in the last hour.
+
+    * **ulm** - The number of access attempts matching the **account hash** and **username hash** in the last minute.
+
+  * **device** - A data container that includes:
+
+    * **alh** - The number of access attempts matching the **device** and **account hash** in the last hour.
+
+    * **alm** - The number of access attempts matching the **device** and **account hash** in the last minute.
+
+    * **iplh** - The number of access attempts matching the **device** and **IP address** in the last hour.
+
+    * **iplm** - The number of access attempts matching the **device** and **IP address** in the last minute.
+
+    * **plh** - The number of access attempts matching the **device** and **password hash** in the last hour.
+
+    * **plm** - The number of access attempts matching the **device** and **password hash** in the last minute.
+
+    * **ulh** - The number of access attempts matching the **device** and **username hash** in the last hour.
+
+    * **ulm** - The number of access attempts matching the **device** and **username hash** in the last minute.
+
+  * **ip_address** - A data container that includes:
+
+    * **alh** - The number of access attempts matching the **IP address** and **account hash** in the last hour.
+
+    * **alm** - The number of access attempts matching the **IP address** and **account hash** in the last minute.
+
+    * **dlh** - The number of access attempts matching the **IP address** and **device** in the last hour.
+
+    * **dlm** - The number of access attempts matching the **IP address** and **device** in the last minute.
+
+    * **plh** - The number of access attempts matching the **IP address** and **password hash** in the last hour.
+
+    * **plm** - The number of access attempts matching the **IP address** and **password hash** in the last minute.
+
+    * **ulh** - The number of access attempts matching the **IP address** and **username hash** in the last hour.
+
+    * **ulm** - The number of access attempts matching the **IP address** and **username hash** in the last minute.
+
+  * **password** - A data container that includes:
+
+    * **alh** - The number of access attempts matching the **password hash** and **account hash** in the last hour.
+
+    * **alm** - The number of access attempts matching the **password hash** and **account hash** in the last minute.
+
+    * **dlh** - The number of access attempts matching the **password hash** and **device** in the last hour.
+
+    * **dlm** - The number of access attempts matching the **password hash** and **device** in the last minute.
+
+    * **iplh** - The number of access attempts matching the **password hash** and **IP address** in the last hour.
+
+    * **iplm** - The number of access attempts matching the **password hash** and **IP address** in the last minute.
+
+    * **ulh** - The number of access attempts matching the **password hash** and **username hash** in the last hour.
+
+    * **ulm** - The number of access attempts matching the **password hash** and **username hash** in the last minute.
+
+  * **user** - A data container that includes:
+
+    * **alh** - The number of access attempts matching the **username hash** and **account hash** in the last hour.
+
+    * **alm** - The number of access attempts matching the **username hash** and **account hash** in the last minute.
+
+    * **dlh** - The number of access attempts matching the **username hash** and **device** in the last hour.
+
+    * **dlm** - The number of access attempts matching the **username hash** and **device** in the last minute.
+
+    * **iplh** - The number of access attempts matching the **username hash** and **IP address** in the last hour.
+
+    * **iplm** - The number of access attempts matching the **username hash** and **IP address** in the last minute.
+
+    * **plh** - The number of access attempts matching the **username hash** and **password hash** in the last hour.
+
+    * **plm** - The number of access attempts matching the **username hash** and **password hash** in the last minute.
+
+* **response_id** - The identifier given to the request. This is for auditing purposes.
+
+------------------------------------------------------------------------------
+
+Decision: ``POST https://<kount-access-host>/decision``
+=========================================================================
+
+``/decision`` Input
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
++--------------------------+----------------------------------------------------------------------------------+
+| Parameter name           | Parameter description                                                            |
++--------------------------+----------------------------------------------------------------------------------+
+| ``sessionId``/ ``s``     |A unique session identifier for the user' session, generated and supplied by the  |
+|                          |merchant                                                                          |
++--------------------------+----------------------------------------------------------------------------------+
+| ``version`` / ``v``      |API response version for request responses. to receive responses that have        | 
+|                          |geographical information, use version ``2.1.0 (version = "0210")``.               |
++--------------------------+----------------------------------------------------------------------------------+
+| ``username`` / ``uh``    |The value of the username, hashed for security purposes (32/64 character length   |
+|                          |hexadecimal)                                                                      |
++--------------------------+----------------------------------------------------------------------------------+
+| ``password`` / ``ph``    |The value of the password, hashed for security purposes (32/64 character length   |
+|                          |hexadecimal)                                                                      |
++--------------------------+----------------------------------------------------------------------------------+
+| ``account`` / ``ah``     |The value of the account - username concatenated with the password, hashed for    |
+|                          |security purposes (32/64 character length hexadecimal)                            |
++--------------------------+----------------------------------------------------------------------------------+
+
+
+``/decision`` Output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **decision** - A data container that includes:
+
+  * **errors** - List of error messages if the request failed.
+
+  * **reply** - A data container that includes:
+
+    * **ruleEvents** - A data container that includes:
+
+      * **decision** - The overall decision, `A` approve or `D` decline.
+
+      * **ruleEvents** - The name of the threshold(s) triggered.
+
+      * **total** - The number of thresholds that were triggered.
+
+  * **warnings** - List of warnings if the request succeeded, but did not invoke the thresholds.
+
+* **device** - [[The device data, documented above|Kount-Access-Endpoints#device-output]].
+
+* **velocity** - [[The velocity data, documented above|Kount-Access-Endpoints#velocity-output]].
+
+* **response_id** - The identifier given to the request. This is for auditing purposes.

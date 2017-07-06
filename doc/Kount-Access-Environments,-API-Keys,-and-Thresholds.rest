@@ -1,0 +1,59 @@
+Kount Access Environments, API Keys, and Thresholds
+======================================================================
+
+This page discusses the Kount Test and Production environments, usage of API keys for merchant authentication as well as velocity thresholds configuration.
+
+Environments and API keys
+====================================================
+
+Kount has separate environments for testing and production. API keys must be created and used for each environment separately to track and control permissions.
+
+Creating an API Key
+====================================================
+
+API keys are required to authenticate to Kount. Each environment requires a separate API key.
+ 
+1. API keys are created within the *Agent Web Console* (AWC). After logging in, browse to the **Admin tab > API Keys > Create API Key**.
+2. Give the API key a name.
+3. Check the *Kount Access check box* and any other required permissions when creating the API key. (If a key exists with *Access* permissions you may use this instead.)
+4. Click the *Create API Key* button.
+  
+[[images/ka-api-key.png]]
+ 
+The API key(s) with *Access* permissions must reside on each server that is posting to Kount.
+
+.:warning: API Keys are specific to each environment; Keys created in the `TEST` environment will not work in the `PRODUCTION` environment and vice versa.
+
+Threshold Configuration
+====================================================
+
+Velocity thresholds can be set for numerous parameters regarding user interactions and activities and evaluate the risk of login attempts in real-time. This tab/menu item will appear in the **Agent Web Console** (AWC) if Kount Access has been enabled for a merchant. If the menu item does not display please contact your Clients Success Manager.
+
+Thresholds are located in the **Fraud Control tab > Access Thresholds**. Merchants need only configure those velocity thresholds they want to use.
+  
+Velocity measures include:
+
+* Number of access attempts based on ``Device``, ``IP Address``, ``Username``, ``Password``, and ``Account`` (*``Account`` is a combination of ``Username`` and ``Password``*)
+
+* Velocities are cross-referenced with this User's current login attempt
+
+* Measured within the last minute and last hour
+
+Below is an image of the **Access Thresholds** configuration screen from the AWC.
+
+[[images/ka-thresholds.png]]
+
+You can set the velocity threshold per minute, per hour, or both by selecting the check box to the left of the desired element(s). Use the up arrow to the right of the numeral to set a positive number and the down arrow to set a negative number. When you are finished configuring the velocity thresholds, click the **Save** button at the bottom-right of the page.
+
+The two possible decision outcomes for Kount Access are *Approve* and *Decline*.
+
+--------------------------------------------------------------
+
+**Next steps**: 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Integrate the [[Data Collector]]
+
+* Learn more about the various [[endpoints|kount-access-endpoints]] in the Kount Access service.
+
+* See code [[examples|kount-access-examples]]
