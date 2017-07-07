@@ -9,6 +9,6 @@ Technical Reference
         
         * `/velocity <Kount-Access-Endpoints#velocity-post-httpskount-access-hostvelocity>`_
         
-        * `/decision <Kount-Access-Endpoints#velocity-post-httpskount-access-hostdecision>`_
+        * `/decision <Kount-Access-Endpoints#decision-post-httpskount-access-hostdecision>`_
 
 * `Kount Access Examples <Kount-Access-Examples>`_
