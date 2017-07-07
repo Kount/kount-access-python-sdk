@@ -74,7 +74,7 @@ Using the ``sessionId`` of the user’s login and the username (uh) and password
  
 ::
 
-  result = access_sdk.get_access_data(<sessionId>, <username>, <password>) 
+  result = access_sdk.get_velocity(<sessionId>, <username>, <password>) 
   print("result: %s" % json.loads(result))
 
  
@@ -106,7 +106,7 @@ Gets the decision value based on threshold(s). This requires the same input as t
  
 ::
 
-  result = access_sdk.get_decision_data(<sessionId>, <username>, <password>) 
+  result = access_sdk.get_decision(<sessionId>, <username>, <password>) 
   print("result: %s" % json.loads(result))
 
  
