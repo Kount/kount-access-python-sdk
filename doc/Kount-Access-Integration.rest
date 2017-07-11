@@ -1,0 +1,21 @@
+Kount Access Integration
+========================================================
+
+This page provides brief overview of the process of using Kount Access.
+  
+[[images/ka-login.gif]]
+  
+  
+* The *Client* requests to login into the *Merchant* website.
+
+* The login page contains references to Kount Access [[Data Collector (or Client Collector)|Data-Collector]] gathering information for the *Client* through their browser/device. The requests to the *Data Collector* must have a unique parameter - the ``sessionId`` (see [[session id requirements|Data-Collector#session-id-discussion]]. The *Data Collector* stores the ``sessionId`` and the information for the *Client* in its internal database for subsequent use.
+
+* In order to fully create a profile for the *Client*, several resources are loaded without interrupting the *Client* login process. Inspecting the load process, the *Data Collector* retrieves more data about the *Client* browser/device. Description of the loaded resources, as well as code snippets and examples can be found on the [[Data Collector|Data-Collector#web-clients-or-browser]] page.
+
+* The *Client* initiates the login process.
+
+* *Merchant* website starts processing the login attempt.
+
+* Requests are sent from the *Merchant* to the *Kount Access API Server* in order to obtain automated decision (**Approve** or **Decline**) based on device and velocity information. Description of the available requests can be found on the [[Requests description page|kount-access-endpoints]].
+
+* *Merchant* returns a login successful/unsuccessful to the *Client* based on previous steps.

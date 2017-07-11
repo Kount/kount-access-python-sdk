@@ -1,0 +1,33 @@
+What is CSP?
+========================
+ 
+According to [[MDN: CSP (Content Security Policy)|https://developer.mozilla.org/en-US/docs/Web/Security/CSP]], *"Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross-Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware."*
+ 
+Merchants who want to protect their site(s) and users from web browser attacks can include a special HTTP header designed to instruct the browser how to best render and request resources such as images, styles, and JavaScript.
+ 
+How is CSP Used?
+===============================
+
+CSP uses the HTTP header `Content-Security-Policy` with a string containing directives that control the rendering and requesting of resources. This HTTP header can be sent by utilizing server side code (Python, PHP, Java, C#), or with a ``<meta>`` tag in the HTML.
+ 
+**Example:**
+
+```html
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src https://ajax.googleapis.com">
+```
+
+How is CSP Used with Kount Access?
+===================================================
+ 
+While the combinations of CSP directives a merchant might use on their site is dizzying and is based on the unique way their pages are built, a few special directives will be required to ensure that Kount Access's device fingerprinting works correctly.
+ 
+```html
+<meta http-equiv="Content-Security-Policy" content="img-src https://*.kaxsdc.com; script-src 'unsafe-inline' https://*.kaxsdc.com; child-src https://*.kaxsdc.com">`
+```
+ 
+Explanation:
+^^^^^^^^^^^^^^^^^^^^^
+
+* ``img-src https://*.kaxsdc.com`` - Informs the browser that images can be loaded from ``https://*.kaxsdc.com``. This is to ensure our ``logo.gif`` for the [[Data Collection|data-collector]] process is loaded.
+* ``script-src 'unsafe-inline' https://*.kaxsdc.com`` - The `'unsafe-inline'` directive instructs the browser that it is safe to run the inline JavaScript that creates the SDK client, sets up the callbacks, and initiates the data collection. The ``https://*.kaxsdc.com`` source tells the browser that it's safe to execute the SDK JavaScript.
+* ``child-src https://*.kaxsdc.com`` - Informs the browser that child documents (``iframe``s) can be loaded from ``https://*.kaxsdc.com``. This ensures the [[Data Collector|data-collector]] ``iframe`` that does all the work gets loaded.

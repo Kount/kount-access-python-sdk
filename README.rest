@@ -2,7 +2,14 @@ Welcome to the kount-access-python-sdk!
 =====================================================
 
 
-On these pages we'll discuss setting up and using the Kount Access product.
+Overview
+--------
+
+This package contains a python library to utilize the API services of Kount's
+Access Product.  For more information on what Kount Access is, go to
+http://www.kount.com
+
+
 
 This library allows you to connect to the Kount Access API services and get information back from your login transactions. In order to use this library you will need:
 
@@ -33,7 +40,7 @@ If you want to use the Kount Access SDK, you need to download and build it local
 
 * **Download** (the latest) release from the `Releases <https://github.com/Kount/kount-access-python-sdk/releases>`_ page for a stable version of the SDK.
 
-* **pip**
+* **pip** - the easiest way to install kount-access is using *pip*
 
   ::
   
@@ -42,3 +49,8 @@ If you want to use the Kount Access SDK, you need to download and build it local
 
 
 .:information_source: This SDK is only Python 2.7.13 compatible.
+
+How it works:
+========================
+
+https://github.com/Kount/kount-access-python-sdk/wiki/Kount-Access-Examples

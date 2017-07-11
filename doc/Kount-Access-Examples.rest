@@ -1,0 +1,138 @@
+Kount Access Examples
+===============================
+
+So, following the [[prerequisites|Kount-Access-Prerequisites]] SDK users would need:
+* Merchant ID
+* API Key
+* Kount Access service host
+
+Introduction
+----------------------
+ 
+
+An object, access_sdk is created and is used to make service calls to the Kount Access Inquiry Service, (or there is an option to create a service object using a specified version. The default version is ``0210``).
+
+ 
+
+There are three requests:
+
+ 
+
+* `Device <Kount-Access-Examples#device>`_
+* `Velocity <Kount-Access-Examples#velocity>`_
+* `Decision <Kount-Access-Examples#decision>`_
+ 
+
+The access_sdk object is constructed using the following elements:
+
+ 
+::
+
+  access_sdk = AccessSDK (<host>, <merchantId>, <apiKey>, <version>)
+
+ 
+Device
+^^^^^^^^^^
+
+ 
+
+Gets the Device ID (fingerprint) and other details of the device, for the Session ID in reference to a user’s login attempt.
+
+ 
+::
+
+   result = access_sdk.get_device(<sessionId>)
+   print("result:%s" %json.loads(result))
+
+ 
+
+**Response Example:**
+
+ 
+::
+
+  {
+  "device":
+  {"id": "06f5da990b2e9513267865eb0d6cf0df",
+  "ipAddress": "64.128.91.251",
+  "ipGeo": "US", "mobile": 1,
+  "proxy": 0, "country": "US",
+  "region": "ID",
+  "geoLat": 43.37,
+  "geoLong": -116.200
+  },
+  "response_id": "fc5c7cb1bd7538d3b64160c5dfedc3b9"
+  }
+
+ 
+Velocity
+^^^^^^^^^^^^
+ 
+
+Using the ``sessionId`` of the user’s login and the username (uh) and password (ph) values given by the user for login, Kount Access provides information about previous login attempts. The username and password are one-way hashed before the service call is made. This way the user's credentials are encoded and un-decodable when the method is called.
+
+ 
+::
+
+  result = access_sdk.get_velocity(<sessionId>, <username>, <password>) 
+  print("result: %s" % json.loads(result))
+
+ 
+
+Response Example:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+::
+
+  {
+  "device":
+    {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251", "ipGeo": "US", "mobile": 0, "proxy": 0},
+  "response_id": "3659d4bb91ba646987a1245d8af8c0a4", "velocity":
+  {"account": {"dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 1, "plm": 1, "ulh": 1, "ulm": 1},
+  "device": {"alh": 3, "alm": 3, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
+  "ip_address": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
+  "password": { "alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1 },
+  "user": { "alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
+  }
+  }
+
+ 
+Decision
+^^^^^^^^^^^^^^^^^
+ 
+
+Gets the decision value based on threshold(s). This requires the same input as the velocity method, documented above.
+
+ 
+::
+
+  result = access_sdk.get_decision(<sessionId>, <username>, <password>) 
+  print("result: %s" % json.loads(result))
+
+ 
+
+Response Example:
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ 
+::
+
+  {
+  "decision":
+  { "errors": [], "reply":
+  {"ruleEvents":
+  { "decision": "A", "ruleEvents": [], "total": 0}
+  },
+  "warnings": []
+  },
+  "device":
+  {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251", "ipGeo": "US", "mobile": 1, "proxy": 0, 
+  "country": "US", "region": "ID", "geoLat": 43.37, "geoLong": -116.200},
+  "response_id": "5fa44f9de37834fcc6fdf2e05fa08537", "velocity":
+  {"account": {"dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 1, "plm": 1, "ulh": 1, "ulm": 1},
+  "device": {"alh": 3, "alm": 3, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
+  "ip_address": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
+  "password": { "alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1},
+  "user": { "alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
+  }
+  }

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.komodoproject
+*htmlcov*
+*.txt
+_build
+build
+kount-*
+kount_py*
+kount_ris_*
+py3*
+local_settings.py
+dist
