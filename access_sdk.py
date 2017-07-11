@@ -77,7 +77,7 @@ class AccessSDK:
         Helper for building authorization header
         @return Encoded authorization value.
         """
-        m = base64.standard_b64encode(str(self.merchantId).encode('utf-8'))
+        m = str(self.merchantId).encode('utf-8')
         a = base64.standard_b64encode(m +  ":".encode('utf-8') + self.apiKey.encode('utf-8'))
         return {'Authorization': ('Basic ' + a.decode('utf-8'))}
 
