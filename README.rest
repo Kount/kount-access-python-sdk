@@ -2,8 +2,14 @@ Welcome to the kount-access-python-sdk!
 =====================================================
 
 
+Overview
+--------
 
-On these pages we'll discuss setting up and using the Kount Access product.
+This package contains a python library to utilize the API services of Kount's
+Access Product.  For more information on what Kount Access is, go to
+http://www.kount.com
+
+
 
 This library allows you to connect to the Kount Access API services and get information back from your login transactions. In order to use this library you will need:
 
@@ -25,35 +31,26 @@ after the user submits their login, typically where the login form `POST` is han
 regardless of whether the login is successful or not.
 
 
-The Kount Access integration consists of three parts:
---------------------------------------------------------------
+Downloading or Install the SDK
+====================================================
 
-1. Configuring the [[Merchant Authentication and Velocity Thresholds|Kount-Access-Environments,-API-Keys,-and-Thresholds]]
+If you want to use the Kount Access SDK, you need to download and build it locally. There are some options for downloading:
 
-2. [[Data Collection|data-collector]] process - provides the initial user data that is captured before the user logs in. Depending on the device type that performs the connection, there are three possible means to collect this data - web clients (browsers), iOS applications, and Android applications
+* **Clone** the ``kount-access-python-sdk`` repository and use its `master` branch if you want to have the latest (unreleased) features, improvements and bugfixes.
 
-3. [[Access Inquiry service|kount-access-endpoints]] - provides velocity (for device and decision) information about related login attempts during the user login process. The Access Inquiry Service is used directly in the merchant’s website (or authentication service) that handles user login. The Access Inquiry Service should be integrated into the client code so that it is called after the user submits their login, typically where the login form POST is handled. This will be used regardless of whether the login is successful or not.
+* **Download** (the latest) release from the `Releases <https://github.com/Kount/kount-access-python-sdk/releases>`_ page for a stable version of the SDK.
 
- .:information_source: The Access Inquiry Service is designed to be used in conjunction with the Data Collection process. The Data Collection process is passive and provides no information back to a merchant independent of the Access Inquiry Service.
+* **pip** - the easiest way to install kount-access is using *pip*
 
-On the [[Kount Access Integration]] page, you can find a diagram of the whole process of using Kount Access as well as brief explanations on each step for that process.
+  ::
+  
+    pip install kount-access-python-sdk
+  
 
---------------------------------------------------------------
-
-All information about needed resources can be found on the [[Prerequisites|Kount-Access-Prerequisites]] page, as well as building and referring the SDK in your projects.
-
---------------------------------------------------------------
-
-Access Inquiry Service API Endpoints reference can be found on the dedicated [[Endpoints|Kount-access-endpoints]] page.
-
---------------------------------------------------------------
-
-On the [[Examples|examples]] page, you can find a few lines of sample code showing how to initialize the SDK, do various requests and analyze their responses.
-
---------------------------------------------------------------
-
-[[CSP - Using Kount Access with Content Security Policy|Kount-Access-and-Content-Security-Policy]]
-
---------------------------------------------------------------
 
 .:information_source: This SDK is only Python 2.7.13 compatible.
+
+How it works:
+========================
+
+https://github.com/Kount/kount-access-python-sdk/wiki/Kount-Access-Examples
