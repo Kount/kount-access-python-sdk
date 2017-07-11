@@ -1,10 +1,16 @@
+# -*- coding: utf-8 -*-
 """
 access_sdk module Contains functions for a client to call Kount Access's API Service.
 """
 import base64
 import hashlib
 import urllib
-import urllib2
+try:
+    import urllib2
+    py27 = True
+except ImportError:
+    import requests
+    py27 = False
 import json
 
 
@@ -71,7 +77,9 @@ class AccessSDK:
         Helper for building authorization header
         @return Encoded authorization value.
         """
-        return {'Authorization': 'Basic ' + base64.standard_b64encode(str(self.merchantId) + ":" + self.apiKey)}
+        m = str(self.merchantId).encode('utf-8')
+        a = base64.standard_b64encode(m +  ":".encode('utf-8') + self.apiKey.encode('utf-8'))
+        return {'Authorization': ('Basic ' + a.decode('utf-8'))}
 
     def get_decision(self, session, username, password, additional_params=None):
         """
@@ -106,7 +114,6 @@ class AccessSDK:
         }
         if additional_params is not None:
             self.__add_param__(request, additional_params)
-
         return self.__request_post__(request['url'], request['params'])
 
     def get_device(self, session, additional_params=None):
@@ -125,7 +132,6 @@ class AccessSDK:
         }
         if additional_params is not None:
             self.__add_param__(request, additional_params)
-
         return self.__request_get__(request['url'], request['params'])
 
     def __get_hash__(self, value):
@@ -134,7 +140,8 @@ class AccessSDK:
         @param value: Value to hash.
         @return Hashed value.
         """
-        return hashlib.sha256(value).hexdigest()
+        return hashlib.sha256(value.encode('utf-8')).hexdigest()
+
 
     def __request__(self, url, values=None):
         """
@@ -143,13 +150,16 @@ class AccessSDK:
         @param values
         @return request result.
         """
-        request = urllib2.Request(url, values, self.__get_authorization_header__())
-        try:
+        if py27:
+            request = urllib2.Request(url, values, self.__get_authorization_header__())
             response = urllib2.urlopen(request)
-            result = response.read()
-            return self.__format_response__(result)
-        except urllib2.HTTPError as error:
-            return "Unable to process request - status: %s, reason: %s" % (error.code, error.reason)
+        else:
+            if values:
+                values = values.encode('utf-8')
+            request = urllib.request.Request(url, values, self.__get_authorization_header__())
+            response = urllib.request.urlopen(request)
+        result = response.read()
+        return self.__format_response__(result)
 
     def __request_get__(self, url, values):
         """
@@ -158,7 +168,10 @@ class AccessSDK:
         @param values Parameters for the request.
         @return request result.
         """
-        return self.__request__(url + "?" + urllib.urlencode(values))
+        if py27:
+            return self.__request__(url + "?" + urllib.urlencode(values))
+        else:
+            return self.__request__(url + "?" + urllib.parse.urlencode(values))
 
     def __request_post__(self, url, values):
         """
@@ -167,25 +180,7 @@ class AccessSDK:
         @param values Parameters for the request.
         @return request result.
         """
-        return self.__request__(url, urllib.urlencode(values))
-
-    def help_get_device(self):
-        """
-        Request the help page for the api/device endpoint.
-        @return: Response.
-        """
-        return self.get_device('', {'help': ''})
-
-    def help_get_velocity(self):
-        """
-        Request the help page for the api/velocity endpoint.
-        @return: Response.
-        """
-        return self.get_velocity('', '', '', {'help': ''})
-
-    def help_get_decision(self):
-        """
-        Request the help page for the api/decision endpoint.
-        @return: Response.
-        """
-        return self.get_decision('', '', '', {'help': ''})
+        if py27:
+            return self.__request__(url, urllib.urlencode(values))
+        else:
+            return self.__request__(url, urllib.parse.urlencode(values))
