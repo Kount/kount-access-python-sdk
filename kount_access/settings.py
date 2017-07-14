@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# This file is part of the Kount python sdk project
+# https://github.com/Kount/kount-access-python-sdk/)
+# Copyright (C) 2017 Kount Inc. All Rights Reserved.
+"settings"
+from __future__ import (
+    absolute_import, unicode_literals, division, print_function)
+
+__author__ = "Yordanka Spahieva"
+__version__ = "1.0.0"
+__maintainer__ = "Yordanka Spahieva"
+__email__ = "yordanka.spahieva@sirma.bg"
+__status__ = "Development"
+
+
+merchantId = 123456
+apiKey = 'YOUR-API-KEY-GOES-HERE'
+serverName = 'api-sandbox01.kountaccess.com'
+version = '0210'
+pswd = 'fake_pass'
+u_email = 'fake@email.com'
+
+try:
+    from .local_settings import *
+except ImportError as ie:
+    print("The default fake apikey set. Required actual one from Kount. ", ie)
