@@ -57,4 +57,4 @@ On the [[Examples|examples]] page, you can find a few lines of sample code showi
 
 --------------------------------------------------------------
 
-.:information_source: This SDK is only Python 2.7.13 compatible.
+.:information_source: This SDK is both Python 2.7.13 and 3.6.x compatible.
