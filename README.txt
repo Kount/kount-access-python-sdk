@@ -37,7 +37,7 @@ If you want to use the Kount Access SDK, you need to download and build it local
 
   ::
   
-    pip install kount-access-python-sdk
+    pip install kount-access-sdk
   
 
 
