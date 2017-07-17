@@ -29,13 +29,11 @@ except ImportError:
     py27 = False
 
 from kount_access.settings import pswd, u_email, version, serverName as api_url, apiKey, merchantId
-#~ from kount_access.pretty_print import pretty_print_POST
+import kount_access.access_sdk
 assert apiKey != 'YOUR-API-KEY-GOES-HERE'
 
 logger = logging.getLogger('kount.test')
 session_id = '8f18a81cfb6e3179ece7138ac81019aa'
-
-
 device_responce = {
     "device":
         {"id": "06f5da990b2e9513267865eb0d6cf0df",
@@ -83,7 +81,7 @@ decision_responce = {
         }
   }
 
-method_list = ['get_decision', 'get_device', 'get_velocity']
+method_list = ['get_device', 'get_decision', 'get_velocity']
 
 
 class SequenceMeta(type):
@@ -111,7 +109,7 @@ class SequenceMeta(type):
 
 
 class TestSequence(six.with_metaclass(SequenceMeta, unittest.TestCase)):
-        __metaclass__ = SequenceMeta
+    __metaclass__ = SequenceMeta
 
 
 class TestAPIAccessMock(unittest.TestCase):
@@ -119,7 +117,7 @@ class TestAPIAccessMock(unittest.TestCase):
 
     @patch('kount_access.access_sdk.AccessSDK')
     def setUp(self, MockAccessSDK):
-        self.method_list = ['get_decision', 'get_device', 'get_velocity']
+        self.method_list = method_list
         self.access_sdk = MockAccessSDK(api_url, merchantId, apiKey, version)
         assert isinstance(MockAccessSDK, MagicMock)
         assert MockAccessSDK.called
@@ -132,39 +130,68 @@ class TestAPIAccessMock(unittest.TestCase):
         p = self.access_sdk.mockhash(u'password')
         self.assertEqual(self.access_sdk.mockhash.return_value, p)
 
-    @patch('kount_access.access_sdk.AccessSDK.get_decision')
-    @patch('kount_access.access_sdk.AccessSDK.get_device')
-    @patch('kount_access.access_sdk.AccessSDK.get_velocity')
-    def test_mock(self, devision, device, velocity):
+    @patch('kount_access.access_sdk.AccessSDK')
+    def test_mock(self, access):
         """Mock and MagicMock - AccessSDK"""
-        self.access_sdk.get_decision = MagicMock(return_value  = decision_responce)
-        self.access_sdk.get_device = MagicMock(return_value  = device_responce)
-        self.access_sdk.get_velocity = MagicMock(return_value  = velocity_responce)
+        msg = "UNAUTHORIZED"
+        assert access is kount_access.access_sdk.AccessSDK
+        response_list = [device_responce, decision_responce, velocity_responce]
+        real = kount_access.access_sdk.AccessSDK(api_url, merchantId, apiKey, version)
+        real.get_decision = MagicMock(name='get_decision', return_value  = decision_responce)
+        real.get_device = MagicMock(name='get_device', return_value  = device_responce)
+        real.get_velocity = MagicMock(name='get_velocity', return_value  = velocity_responce)
         if py27: return
         self.arg = [session_id, 'admin', 'password']
         for i in range(len(self.method_list)):
+            arg = self.arg
             with self.subTest(i=i):
                 if 'get_device' in self.method_list[i]:
                     arg = [session_id]
-                    assert self.access_sdk.get_device(arg) == device_responce
-                else:
-                    arg=self.arg
-                    assert self.access_sdk.get_decision(arg) == decision_responce
-                    assert self.access_sdk.get_velocity(arg) == velocity_responce
-                self.assertRaises(
-                    HTTPError, 
-                    Mock(side_effect=HTTPError(
-                                                    url=api_url, code=401, msg='Not Autorised', hdrs=None, fp=None)))
-                try:
-                    getattr(self.access_sdk, self.method_list[i])(*arg)
-                except HTTPError as err:
-                    self.assertEqual('UNAUTHORIZED', err.msg.upper())
-                    self.assertEqual(401, err.code)
+                assert getattr(real, self.method_list[i])(arg) == response_list[i]
+        msg_401 = Mock(side_effect=HTTPError(
+            url=api_url, code=401, msg=msg, hdrs=None, fp=None))
+        try:
+            d =  real.get_device(session_id, return_value  = msg_401())
+        except HTTPError as err:
+            self.assertEqual(msg, err.msg.upper())
+            self.assertEqual(401, err.code)
+        with self.assertRaises(HTTPError):
+            real.get_device(session_id, return_value  = msg_401())
+        with self.assertRaises(HTTPError):
+            msg_401()
+
+    @patch('kount_access.access_sdk.AccessSDK')
+    def test_mock_missing_session(self, access):
+        """should catch the missing sessionId and report up the error in the callback"""
+        msg = "Invalid sessionId [None]"
+        assert access is kount_access.access_sdk.AccessSDK
+        response_list = [device_responce, decision_responce, velocity_responce]
+        real = kount_access.access_sdk.AccessSDK(api_url, merchantId, apiKey, version)
+        real.get_decision = MagicMock(name='get_decision', return_value  = decision_responce)
+        real.get_device = MagicMock(name='get_device', return_value  = device_responce)
+        real.get_velocity = MagicMock(name='get_velocity', return_value  = velocity_responce)
+        if py27: return
+        arg = [None, 'admin', 'password']
+        for i in range(len(self.method_list)):
+            with self.subTest(i=i):
+                if 'get_device' in self.method_list[i]:
+                    arg = [None]
+                assert getattr(real, self.method_list[i])(arg) == response_list[i]
+        msg_session = Mock(side_effect=HTTPError(
+            url=api_url, code=401, msg=msg, hdrs=None, fp=None))
+        try:
+            d =  real.get_device(session_id, return_value  = msg_session())
+        except HTTPError as err:
+            self.assertEqual(msg, err.msg)
+            self.assertEqual(401, err.code)
+        with self.assertRaises(HTTPError):
+            real.get_device(session_id, return_value  = msg_session())
+        with self.assertRaises(HTTPError):
+            msg_session()
 
 
 if __name__ == "__main__":
     unittest.main(
         verbosity=2,
         #~ defaultTest="TestSequence"
-        #~ defaultTest="TestAPIAccess.test_api_access_methods"
     )
