@@ -82,7 +82,7 @@ decision_responce = {
   }
 
 method_list = ['get_device', 'get_decision', 'get_velocity']
-
+args = [session_id, 'admin', 'password']
 
 class SequenceMeta(type):
     def __new__(mcs, name, bases, dict):
@@ -95,7 +95,7 @@ class SequenceMeta(type):
                     assert m=='get_device'
                     arg = [session_id]
                 else:
-                    arg = [session_id, 'admin', 'password']
+                    arg = args
                 self.assertRaises(
                     HTTPError, 
                     Mock(side_effect=HTTPError(
@@ -141,7 +141,7 @@ class TestAPIAccessMock(unittest.TestCase):
         real.get_device = MagicMock(name='get_device', return_value  = device_responce)
         real.get_velocity = MagicMock(name='get_velocity', return_value  = velocity_responce)
         if py27: return
-        self.arg = [session_id, 'admin', 'password']
+        self.arg = args
         for i in range(len(self.method_list)):
             arg = self.arg
             with self.subTest(i=i):
@@ -188,6 +188,60 @@ class TestAPIAccessMock(unittest.TestCase):
             real.get_device(session_id, return_value  = msg_session())
         with self.assertRaises(HTTPError):
             msg_session()
+
+
+class TestAPIAccessDynamicallyCreatedMethods(unittest.TestCase):
+    "dynamically create class methods for a class in Access SDK"
+    maxDiff = None
+
+    # a class method takes the class object as its first variable
+    def class_method_create(cls):
+        # you can just add it to the class if you already know the name you want to use
+        #~ A.func = classmethod(class_method_create)
+
+        # or you can auto-generate the name and set it this way
+        #~ setattr(A, the_name, classmethod(class_method_create))
+
+        #~ print( 'I am a class method')
+        return
+
+    @patch('kount_access.access_sdk.AccessSDK')
+    def setUp(self, MockAccessSDK):
+        self.method_list = method_list
+
+    @patch('kount_access.access_sdk.AccessSDK')
+    def test_mock(self, access):
+        """Mock and MagicMock - AccessSDK"""
+        assert access is kount_access.access_sdk.AccessSDK
+        response_list = [device_responce, decision_responce, velocity_responce]
+        # define a class object
+        real = kount_access.access_sdk.AccessSDK(api_url, merchantId, apiKey, version)
+        for i in range(len(self.method_list)):
+            name = self.method_list[i]
+            setattr(real, self.method_list[i], classmethod(self.class_method_create))
+            assert name in dir(real)
+            getattr(real(), name).return_value = response_list[i]
+        if py27: return
+        self.arg = args
+        for i in range(len(self.method_list)):
+            arg = self.arg
+            with self.subTest(i=i):
+                if 'get_device' in self.method_list[i]:
+                    arg = [session_id]
+                assert getattr(real(), self.method_list[i])(arg) == response_list[i]
+        msg = "UNAUTHORIZED"
+        msg_401 = Mock(side_effect=HTTPError(
+            url=api_url, code=401, msg=msg, hdrs=None, fp=None))
+        try:
+            d = real().get_device(session_id, return_value  = msg_401())
+        except HTTPError as err:
+            self.assertEqual(msg, err.msg.upper())
+            self.assertEqual(401, err.code)
+        with self.assertRaises(HTTPError):
+            real().get_device(session_id, return_value  = msg_401())
+        with self.assertRaises(HTTPError):
+            msg_401()
+
 
 
 if __name__ == "__main__":
