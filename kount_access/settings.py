@@ -8,7 +8,7 @@ from __future__ import (
     absolute_import, unicode_literals, division, print_function)
 
 __author__ = "Kount SDK"
-__version__ = "1.0.0"
+__version__ = "2.1.1"
 __maintainer__ = "Kount SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
