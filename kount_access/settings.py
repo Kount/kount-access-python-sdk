@@ -20,6 +20,14 @@ version = '0210'
 pswd = 'fake_pass'
 u_email = 'fake@email.com'
 
+
+#~ uncomment this if you'd like to get the API_KEY from the environment
+#~ import os
+#~ try:
+    #~ SALT = os.environ['K_ACCESS']
+#~ except KeyError:
+    #~ print("The default fake API_KEY set. Required actual one from Kount")
+
 try:
     from .local_settings import *
 except ImportError as ie:
