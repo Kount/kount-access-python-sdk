@@ -22,7 +22,6 @@ try:
     import urllib2
     py27 = True
 except ImportError:
-    import requests
     py27 = False
 import json
 
