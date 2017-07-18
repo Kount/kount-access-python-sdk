@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # This file is part of the Kount access python sdk project
@@ -33,8 +32,8 @@ class AccessSDK:
     Class that wraps access to Kount Access's API via python interface.
     """
 
-    # This is the default version for this SDK.
-    __version__ = '0211'
+    # This is the default service version for this SDK - 0210.
+    __version__ = '0210'
 
     def __init__(self, host, merchantId, apiKey, version=None):
         """

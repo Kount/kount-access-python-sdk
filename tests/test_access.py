@@ -27,8 +27,7 @@ except ImportError:
 import json
 import logging
 from kount_access.access_sdk import AccessSDK
-from kount_access.settings import pswd, u_email, version, serverName, apiKey, merchantId
-#~ from kount_access.pretty_print import pretty_print_POST
+from settings import pswd, u_email, version, serverName, apiKey, merchantId
 assert apiKey != 'YOUR-API-KEY-GOES-HERE'
 
 logger = logging.getLogger('kount.test')
@@ -51,7 +50,7 @@ class TestAPIAccess(unittest.TestCase):
         p = self.access_sdk.__get_hash__(u'password')
         self.assertEqual('5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', p)
 
-    @unittest.skipIf(py27 is True, "subTest not supported in this Python 2.7.x")
+    @unittest.skipIf(py27 is True, "subTest is not supported in this Python 2.7.x")
     def test_subtest(self):
         """python 3.6.x only - subTest"""
         for i in range(len(self.method_list)):
@@ -91,13 +90,11 @@ def make_function(m):
             self.assertEqual(401, err.code)
     return common
 
-
 def attributes_set_to_class(i, class_name=TestAPIAccess, make_function=make_function, **kwd):
     """set attributes to class like test_get_decision"""
     test_func = make_function(method_list[i])
     setattr(class_name, 'test_%s'%method_list[i], test_func)
     return class_name
-
 
 for i in range(len(method_list)):
     attributes_set_to_class(i, class_name=TestAPIAccess, make_function=make_function)
@@ -195,5 +192,4 @@ if __name__ == "__main__":
     unittest.main(
         verbosity=2,
         #~ defaultTest="TestAPIAccess.test_get_decision"
-        #~ defaultTest="TestAPIRequests"
     )

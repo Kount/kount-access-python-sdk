@@ -29,6 +29,6 @@ u_email = 'fake@email.com'
     #~ print("The default fake API_KEY set. Required actual one from Kount")
 
 try:
-    from .local_settings import *
+    from local_settings import *
 except ImportError as ie:
     print("The default fake apikey set. Required actual one from Kount. ", ie)

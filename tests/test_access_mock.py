@@ -28,8 +28,8 @@ except ImportError:
     from urllib.error import HTTPError
     py27 = False
 
-from kount_access.settings import pswd, u_email, version, serverName as api_url, apiKey, merchantId
 import kount_access.access_sdk
+from settings import pswd, u_email, version, serverName as api_url, apiKey, merchantId
 assert apiKey != 'YOUR-API-KEY-GOES-HERE'
 
 logger = logging.getLogger('kount.test')
