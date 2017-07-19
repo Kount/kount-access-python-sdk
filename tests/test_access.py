@@ -12,8 +12,6 @@ __maintainer__ = "Kount Access SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
 
-"integration tests"
-
 import unittest
 import base64
 import hashlib
@@ -29,64 +27,23 @@ except ImportError:
 import json
 import logging
 from kount_access.access_sdk import AccessSDK
+from settings import pswd, u_email, version, serverName, apiKey, merchantId
+assert apiKey != 'YOUR-API-KEY-GOES-HERE'
+
 logger = logging.getLogger('kount.test')
+session_id = '8f18a81cfb6e3179ece7138ac81019aa'
 
-#~ Access SDK methods
 method_list = [func for func in dir(AccessSDK) if callable(getattr(AccessSDK, func)) and not func.startswith("__")]
-
-#~ Sample host. this should be the name of the Kount Access API server you want to connect to.
-serverName = 'api-sandbox01.kountaccess.com'
+logger.info(merchantId, serverName, version, session_id, u_email, method_list)
 
 
-class BaseTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        """Sample Data (update with data used in your testing to receive the actual response from Kount Access)
-        - Sample session ID - Fake user session (this should be retrieved from the 
-            Kount Access Data Collector Client SDK.) This will be a 32 character hash value
-        - Users credentials used to login for the test:
-            - u_email,
-            - pswd
-        - apiKey - This should be the API Key you were issued from Kount
-        - merchantId - Merchant's customer ID at Kount.
-        """
-        #~ THIS_IS_THE_USERS_SESSION_FROM_JAVASCRIPT_CLIENT_SDK
-        self.session_id = '8f18a81cfb6e3179ece7138ac81019aa'
-        self.merchantId = 999999
-        self.apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIxMDAxMDAiLCJhdWQiOiJLb3VudC4wIiwiaWF0IjoxNDI0OTg5NjExLCJzY3AiOnsia2MiOm51bGwsImFwaSI6ZmFsc2UsInJpcyI6ZmFsc2V9fQ.S7kazxKVgDCrNxjuieg5ChtXAiuSO2LabG4gzDrh1x8'
-        self.serverName = serverName
-        self.version = '0210'
-        self.u_email = 'test@test.com'
-        self.pswd = 'password'
-        self.method_list = method_list
-        logger.info(self.merchantId, self.serverName, self.version, self.session_id, self.u_email, self.method_list)
-        #~ Create an instance of the service
-        self.access_sdk = AccessSDK(self.serverName, self.merchantId, self.apiKey, self.version)
-        self.arg = [self.session_id, self.u_email, self.pswd]
-
+class TestAPIAccess(unittest.TestCase):
     def setUp(self):
-        """Do some custom setup"""
-        self.assertEqual(self.method_list, ['get_decision', 'get_device', 'get_velocity'])
+        self.method_list = method_list
+        assert self.method_list == ['get_decision', 'get_device', 'get_velocity']
+        self.access_sdk = AccessSDK(serverName, merchantId, apiKey, version)
+        self.arg = [session_id, u_email, pswd]
 
-
-class TestAPIAccess(BaseTest):
-    """Request and response from Kount Access API.
-    If you are just looking for information about the device (like the
-    device id, or pierced IP Address) then use the get_device function.
-    When requesting Velocity information, the Device information is also
-    included in this response.
-    If you want Kount Access to evaluate possible threats using our
-    Thresholds Engine, you will want to call the get_decision endpoint.
-    This response includes Device information and Velocity data in addition
-    to the Decision information. The decision value can be either 
-    "A" - Approve, or "D" - Decline. In addition it will
-    show the ruleEvents evaluated that forced a "D" (Decline) result. If you
-    do not have any thresholds established it will always default to
-    "A" (Approve). For more information on setting up thresholds, consult the
-    User Guide.
-    If you make a bad request you will get a response with an ERROR_CODE
-    and ERROR_MESSAGE in it.
-    """
     def test_api_access_methods(self):
         u = self.access_sdk.__get_hash__('admin')
         self.assertEqual('8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', u)
@@ -99,11 +56,11 @@ class TestAPIAccess(BaseTest):
         for i in range(len(self.method_list)):
             with self.subTest(i=i):
                 if 'get_device' in self.method_list[i]:
-                    arg = [self.session_id]
+                    arg = [session_id]
                     self.assertRaises(HTTPError, getattr(self.access_sdk, self.method_list[i]), arg)
                 else:
                     arg=self.arg
-                    self.assertRaises(HTTPError, getattr(self.access_sdk, self.method_list[i]), self.session_id, self.u_email, self.pswd)
+                    self.assertRaises(HTTPError, getattr(self.access_sdk, self.method_list[i]), session_id, u_email, pswd)
                 try:
                     getattr(self.access_sdk, self.method_list[i])(*arg)
                 except HTTPError as err:
@@ -122,13 +79,13 @@ def make_function(m):
     def common(self):
         """main function that collect all methods from AccessSDK and create unit-tests for them"""
         if m in ['get_device']:
-            arg = [self.session_id]
+            arg = [session_id]
         else:
-            arg = [self.session_id, self.u_email, self.pswd]
+            arg = [session_id, u_email, pswd]
         try:
             getattr(self.access_sdk, m)(*arg)
         except HTTPError as err:
-            logger.debug("%s, %s", err.msg, err.code)
+            logger.debug("UNAUTHORIZED %s, %s", err.msg, err.code)
             self.assertEqual('UNAUTHORIZED', err.msg.upper())
             self.assertEqual(401, err.code)
     return common
@@ -143,22 +100,21 @@ for i in range(len(method_list)):
     attributes_set_to_class(i, class_name=TestAPIAccess, make_function=make_function)
 
 
-class TestAPIRequests(BaseTest):
-    "tests for Python 2.7.x and 3.6.x, Python Requests used"
+class TestAPIRequests(unittest.TestCase):
     def setUp(self):
         self.headers = {}
-        self.url_get = "https://%s:%s@%s/api/"%(self.u_email, self.pswd, self.serverName)
-        self.params = {'v': self.version, 's': self.session_id}
-        m = str(self.merchantId).encode('utf-8')
-        a = base64.standard_b64encode(m +  ":".encode('utf-8') + self.apiKey.encode('utf-8'))
+        self.url_get = "https://%s:%s@%s/api/"%(u_email, pswd, serverName)
+        self.params = {'v': version, 's': session_id}
+        #~ self.headers['Accept'] = 'application/json'
+        #~ self.headers['Content-Type'] = 'application/json'
+        m = str(merchantId).encode('utf-8')
+        a = base64.standard_b64encode(m +  ":".encode('utf-8') + apiKey.encode('utf-8'))
         self.headers['Authorization'] = 'Basic %s' %a.decode('utf-8')
 
     def test_api_requests(self):
-        """returns device, velocity and decision response,
-        If you make a bad request you will get a response
-        with an ERROR_CODE and ERROR_MESSAGE in it."""
+        "returns device, velocity and decision response"
         failed = []
-        for target in self.method_list:
+        for target in method_list:
             url = "%s%s"%(self.url_get, target.split('get_')[1])
             logger.info("url = %s", url)
             if 'device' in target:
@@ -171,11 +127,9 @@ class TestAPIRequests(BaseTest):
                                     headers=self.headers,
                                     params=self.params,
                                     )
-            logger.debug("r= %s, status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
+            logger.debug("self.r= %s, self.r.status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
             try:
                 self.assertEqual(200, self.r.status_code)
-                # do something with the response
-                # TODO amend the test with real data assertions
             except AssertionError as e:
                 logger.debug("target= %s, e= %s, text= %s", target, e, self.r.text)
                 failed.append((target, e, self.r.text))
@@ -202,16 +156,15 @@ class TestAPIRequests(BaseTest):
                                     headers=self.headers,
                                     params=params,
                                     )
-            logger.debug("r= %s, status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
+            logger.debug("self.r= %s, self.r.status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
             self.assertNotEqual(200, self.r.status_code)
-            # TODO - write the proper assertions after KS-167
-            # Handle the Error. The two keys in the error resonse are ERROR_CODE and ERROR_MESSAGE
+            self.assertNotIn('Error', self.r.text)
 
     def test_api_requests_missing_credentials(self):
-        "missing_credentials in AccessSDK methods, in case of errors !=401, collect and raise Exception"
+        "missing_credentials"
         failed = []
-        url_get = "https://%s:%s@%s/api/"%('', '', self.serverName)
-        for target in self.method_list:
+        url_get = "https://%s:%s@%s/api/"%('', '', serverName)
+        for target in method_list:
             url = "%s%s"%(url_get, target.split('get_')[1])
             logger.debug("url= %s", url)
             if 'device' in target:
@@ -224,12 +177,13 @@ class TestAPIRequests(BaseTest):
                                     headers=self.headers,
                                     params=self.params,
                                     )
-            logger.debug("r= %s, status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
+            logger.debug("self.r= %s, self.r.status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
             try:
                 self.assertEqual(401, self.r.status_code)
             except AssertionError as e:
                 logger.debug("target= %s, e= %s, text= %s", target, e, self.r.text)
                 failed.append((target, e, self.r.text))
+            self.assertNotIn('Error', self.r.text)
         if failed:
             raise Exception(failed)
 

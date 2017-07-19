@@ -12,8 +12,6 @@ __maintainer__ = "Kount Access SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
 
-"mock tests"
-
 import base64
 import hashlib
 import json
@@ -31,7 +29,8 @@ except ImportError:
     py27 = False
 
 import kount_access.access_sdk
-from test_access import BaseTest, method_list, serverName
+from settings import pswd, u_email, version, serverName as api_url, apiKey, merchantId
+assert apiKey != 'YOUR-API-KEY-GOES-HERE'
 
 logger = logging.getLogger('kount.test')
 session_id = '8f18a81cfb6e3179ece7138ac81019aa'
@@ -56,7 +55,7 @@ velocity_responce = {
        {"account": {"dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 1, "plm": 1, "ulh": 1, "ulm": 1},
          "device": {"alh": 3, "alm": 3, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
          "ip_address": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
-         "password": { "alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1},
+         "password": { "alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1 },
          "user": { "alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
        }
   }
@@ -82,9 +81,8 @@ decision_responce = {
         }
   }
 
+method_list = ['get_device', 'get_decision', 'get_velocity']
 args = [session_id, 'admin', 'password']
-response_list = [decision_responce,device_responce,  velocity_responce]
-
 
 class SequenceMeta(type):
     def __new__(mcs, name, bases, dict):
@@ -101,7 +99,7 @@ class SequenceMeta(type):
                 self.assertRaises(
                     HTTPError, 
                     Mock(side_effect=HTTPError(
-                                url=serverName, code=401, msg='Not Authorised', hdrs=None, fp=None)))
+                                url=api_url, code=401, msg='Not Autorised', hdrs=None, fp=None)))
             return test
 
         for i in range(len(method_list)):
@@ -111,18 +109,16 @@ class SequenceMeta(type):
 
 
 class TestSequence(six.with_metaclass(SequenceMeta, unittest.TestCase)):
-#~ class TestSequence(BaseTest):
     __metaclass__ = SequenceMeta
 
 
-class TestAPIAccessMock(BaseTest):
+class TestAPIAccessMock(unittest.TestCase):
     maxDiff = None
-    #~ response_list = [decision_responce, device_responce, velocity_responce]
-
 
     @patch('kount_access.access_sdk.AccessSDK')
     def setUp(self, MockAccessSDK):
-        self.access_sdk = MockAccessSDK(self.serverName, self.merchantId, self.apiKey, self.version)
+        self.method_list = method_list
+        self.access_sdk = MockAccessSDK(api_url, merchantId, apiKey, version)
         assert isinstance(MockAccessSDK, MagicMock)
         assert MockAccessSDK.called
 
@@ -139,7 +135,8 @@ class TestAPIAccessMock(BaseTest):
         """Mock and MagicMock - AccessSDK"""
         msg = "UNAUTHORIZED"
         assert access is kount_access.access_sdk.AccessSDK
-        real = kount_access.access_sdk.AccessSDK(self.serverName, self.merchantId, self.apiKey, self.version)
+        response_list = [device_responce, decision_responce, velocity_responce]
+        real = kount_access.access_sdk.AccessSDK(api_url, merchantId, apiKey, version)
         real.get_decision = MagicMock(name='get_decision', return_value  = decision_responce)
         real.get_device = MagicMock(name='get_device', return_value  = device_responce)
         real.get_velocity = MagicMock(name='get_velocity', return_value  = velocity_responce)
@@ -152,7 +149,7 @@ class TestAPIAccessMock(BaseTest):
                     arg = [session_id]
                 assert getattr(real, self.method_list[i])(arg) == response_list[i]
         msg_401 = Mock(side_effect=HTTPError(
-            url=self.serverName, code=401, msg=msg, hdrs=None, fp=None))
+            url=api_url, code=401, msg=msg, hdrs=None, fp=None))
         try:
             d =  real.get_device(session_id, return_value  = msg_401())
         except HTTPError as err:
@@ -168,7 +165,8 @@ class TestAPIAccessMock(BaseTest):
         """should catch the missing sessionId and report up the error in the callback"""
         msg = "Invalid sessionId [None]"
         assert access is kount_access.access_sdk.AccessSDK
-        real = kount_access.access_sdk.AccessSDK(self.serverName, self.merchantId, self.apiKey, self.version)
+        response_list = [device_responce, decision_responce, velocity_responce]
+        real = kount_access.access_sdk.AccessSDK(api_url, merchantId, apiKey, version)
         real.get_decision = MagicMock(name='get_decision', return_value  = decision_responce)
         real.get_device = MagicMock(name='get_device', return_value  = device_responce)
         real.get_velocity = MagicMock(name='get_velocity', return_value  = velocity_responce)
@@ -180,19 +178,19 @@ class TestAPIAccessMock(BaseTest):
                     arg = [None]
                 assert getattr(real, self.method_list[i])(arg) == response_list[i]
         msg_session = Mock(side_effect=HTTPError(
-            url=self.serverName, code=401, msg=msg, hdrs=None, fp=None))
+            url=api_url, code=401, msg=msg, hdrs=None, fp=None))
         try:
-            d =  real.get_device(session_id, return_value = msg_session())
+            d =  real.get_device(session_id, return_value  = msg_session())
         except HTTPError as err:
             self.assertEqual(msg, err.msg)
             self.assertEqual(401, err.code)
         with self.assertRaises(HTTPError):
-            real.get_device(session_id, return_value = msg_session())
+            real.get_device(session_id, return_value  = msg_session())
         with self.assertRaises(HTTPError):
             msg_session()
 
 
-class TestAPIAccessDynamicallyCreatedMethods(BaseTest):
+class TestAPIAccessDynamicallyCreatedMethods(unittest.TestCase):
     "dynamically create class methods for a class in Access SDK"
     maxDiff = None
 
@@ -215,8 +213,9 @@ class TestAPIAccessDynamicallyCreatedMethods(BaseTest):
     def test_mock(self, access):
         """Mock and MagicMock - AccessSDK"""
         assert access is kount_access.access_sdk.AccessSDK
+        response_list = [device_responce, decision_responce, velocity_responce]
         # define a class object
-        real = kount_access.access_sdk.AccessSDK(self.serverName, self.merchantId, self.apiKey, self.version)
+        real = kount_access.access_sdk.AccessSDK(api_url, merchantId, apiKey, version)
         for i in range(len(self.method_list)):
             name = self.method_list[i]
             setattr(real, self.method_list[i], classmethod(self.class_method_create))
@@ -232,7 +231,7 @@ class TestAPIAccessDynamicallyCreatedMethods(BaseTest):
                 assert getattr(real(), self.method_list[i])(arg) == response_list[i]
         msg = "UNAUTHORIZED"
         msg_401 = Mock(side_effect=HTTPError(
-            url=self.serverName, code=401, msg=msg, hdrs=None, fp=None))
+            url=api_url, code=401, msg=msg, hdrs=None, fp=None))
         try:
             d = real().get_device(session_id, return_value  = msg_401())
         except HTTPError as err:
