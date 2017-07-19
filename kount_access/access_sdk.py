@@ -50,7 +50,7 @@ class AccessSDK:
         if version is not None:
             self.version = version
 
-    def __add_param__(self, request, additional_params):
+    def __add_param(self, request, additional_params):
         """
         Add parameters to a request before making the call.
         get_device_request().
@@ -64,7 +64,7 @@ class AccessSDK:
         else:
             raise Exception()
 
-    def __format_response__(self, response):
+    def __format_response(self, response):
         """
         Convert the JSON response to a native dictionary.
         @param response: JSON representation of the response.
@@ -82,9 +82,9 @@ class AccessSDK:
         @param additional_params: Dictionary of key value pairs representing param name and param value.
         @return response from api.
         """
-        return self.__get_data_using_velocity_params__('velocity', session, username, password, additional_params)
+        return self.__get_data_using_velocity_params('velocity', session, username, password, additional_params)
 
-    def __get_authorization_header__(self):
+    def __get_authorization_header(self):
         """
         Helper for building authorization header
         @return Encoded authorization value.
@@ -102,9 +102,9 @@ class AccessSDK:
         @param additional_params: Dictionary of key value pairs representing param name and param value.
         @return response from api.
         """
-        return self.__get_data_using_velocity_params__('decision', session, username, password, additional_params)
+        return self.__get_data_using_velocity_params('decision', session, username, password, additional_params)
 
-    def __get_data_using_velocity_params__(self, endpoint, session, username, password, additional_params=None):
+    def __get_data_using_velocity_params(self, endpoint, session, username, password, additional_params=None):
         """
         Helper, web request to the Kount Access API velocity based endpoints.
         @param endpoint
@@ -119,14 +119,14 @@ class AccessSDK:
             'params': {
                 'v': self.version,
                 's': session,
-                'uh': self.__get_hash__(username),
-                'ph': self.__get_hash__(password),
-                'ah': self.__get_hash__(username + ":" + password)
+                'uh': self._get_hash(username),
+                'ph': self._get_hash(password),
+                'ah': self._get_hash(username + ":" + password)
             }
         }
         if additional_params is not None:
-            self.__add_param__(request, additional_params)
-        return self.__request_post__(request['url'], request['params'])
+            self.__add_param(request, additional_params)
+        return self.__request_post(request['url'], request['params'])
 
     def get_device(self, session, additional_params=None):
         """
@@ -143,10 +143,10 @@ class AccessSDK:
             }
         }
         if additional_params is not None:
-            self.__add_param__(request, additional_params)
-        return self.__request_get__(request['url'], request['params'])
+            self.__add_param(request, additional_params)
+        return self.__request_get(request['url'], request['params'])
 
-    def __get_hash__(self, value):
+    def _get_hash(self, value):
         """
         Abstracted in case the hashing process should ever change.
         @param value: Value to hash.
@@ -154,8 +154,7 @@ class AccessSDK:
         """
         return hashlib.sha256(value.encode('utf-8')).hexdigest()
 
-
-    def __request__(self, url, values=None):
+    def __request(self, url, values=None):
         """
         Helper for making web requests and handling response.
         @param url URL to request.
@@ -163,17 +162,17 @@ class AccessSDK:
         @return request result.
         """
         if py27:
-            request = urllib2.Request(url, values, self.__get_authorization_header__())
+            request = urllib2.Request(url, values, self.__get_authorization_header())
             response = urllib2.urlopen(request)
         else:
             if values:
                 values = values.encode('utf-8')
-            request = urllib.request.Request(url, values, self.__get_authorization_header__())
+            request = urllib.request.Request(url, values, self.__get_authorization_header())
             response = urllib.request.urlopen(request)
         result = response.read()
-        return self.__format_response__(result)
+        return self.__format_response(result)
 
-    def __request_get__(self, url, values):
+    def __request_get(self, url, values):
         """
         Wrapper for request() to send request as a GET.
         @param url URL to request.
@@ -181,11 +180,11 @@ class AccessSDK:
         @return request result.
         """
         if py27:
-            return self.__request__(url + "?" + urllib.urlencode(values))
+            return self.__request(url + "?" + urllib.urlencode(values))
         else:
-            return self.__request__(url + "?" + urllib.parse.urlencode(values))
+            return self.__request(url + "?" + urllib.parse.urlencode(values))
 
-    def __request_post__(self, url, values):
+    def __request_post(self, url, values):
         """
         Wrapper for request() to send request as a POST.
         @param url URL to request.
@@ -193,6 +192,6 @@ class AccessSDK:
         @return request result.
         """
         if py27:
-            return self.__request__(url, urllib.urlencode(values))
+            return self.__request(url, urllib.urlencode(values))
         else:
-            return self.__request__(url, urllib.parse.urlencode(values))
+            return self.__request(url, urllib.parse.urlencode(values))
