@@ -5,6 +5,8 @@
 # https://github.com/Kount/kount-access-python-sdk/)
 # Copyright (C) 2017 Kount Inc. All Rights Reserved.
 
+"integration mock tests"
+
 from __future__ import absolute_import, unicode_literals, division, print_function
 __author__ = "Kount Access SDK"
 __version__ = "2.1.1"
@@ -12,15 +14,12 @@ __maintainer__ = "Kount Access SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
 
-import base64
-import hashlib
-import json
-import six
+
 import logging
 import unittest
+import six
 
 try:
-    import urllib2
     from mock import patch, MagicMock, Mock
     from urllib2 import HTTPError
     py27 = True
@@ -47,51 +46,52 @@ session_id = '8f18a81cfb6e3179ece7138ac81019aa'
 device_responce = {
     "device":
         {"id": "06f5da990b2e9513267865eb0d6cf0df",
-          "ipAddress": "64.128.91.251",
-          "ipGeo": "US", "mobile": 1,
-          "proxy": 0, "country": "US",
-          "region": "ID",
-          "geoLat": 43.37,
-          "geoLong": -116.200
+         "ipAddress": "64.128.91.251",
+         "ipGeo": "US", "mobile": 1,
+         "proxy": 0, "country": "US",
+         "region": "ID",
+         "geoLat": 43.37,
+         "geoLong": -116.200
         },
     "response_id": "fc5c7cb1bd7538d3b64160c5dfedc3b9"
-   }
+    }
 
 velocity_responce = {
-   "device":
-       {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251", "ipGeo": "US", "mobile": 0, "proxy": 0},
-   "response_id": "3659d4bb91ba646987a1245d8af8c0a4", 
-   "velocity":
-       {"account": {"dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 1, "plm": 1, "ulh": 1, "ulm": 1},
+    "device":
+        {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251",
+         "ipGeo": "US", "mobile": 0, "proxy": 0},
+    "response_id": "3659d4bb91ba646987a1245d8af8c0a4",
+    "velocity":
+        {"account": {"dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 1, "plm": 1, "ulh": 1, "ulm": 1},
          "device": {"alh": 3, "alm": 3, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
          "ip_address": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
-         "password": { "alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1 },
-         "user": { "alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
-       }
-  }
+         "password": {"alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1},
+         "user": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
+        }
+    }
 
 decision_responce = {
     "decision":
-        { "errors": [], 
-        "reply":
-            {"ruleEvents": { "decision": "A", "ruleEvents": [], "total": 0}},
-            "warnings": []
+        {"errors": [],
+         "reply":
+            {"ruleEvents": {"decision": "A", "ruleEvents": [], "total": 0}},
+         "warnings": []
         },
     "device":
-        {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251", "ipGeo": "US", "mobile": 1, "proxy": 0, 
-          "country": "US", "region": "ID", "geoLat": 43.37, "geoLong": -116.200},
-    "response_id": "5fa44f9de37834fcc6fdf2e05fa08537", 
+        {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251",
+         "ipGeo": "US", "mobile": 1, "proxy": 0,
+         "country": "US", "region": "ID", "geoLat": 43.37, "geoLong": -116.200},
+    "response_id": "5fa44f9de37834fcc6fdf2e05fa08537",
     "velocity":
         {
             "account": {"dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 1, "plm": 1, "ulh": 1, "ulm": 1},
             "device": {"alh": 3, "alm": 3, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
             "ip_address": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
-            "password": { "alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1},
-            "user": { "alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
-        }
-  }
+            "password": {"alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1},
+            "user": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
+            }}
 
-#~ Access SDK methods 
+#~ Access SDK methods
 method_list = ['get_device', 'get_decision', 'get_velocity']
 u_email = 'test@test.com'
 args = [session_id, u_email, 'password']
@@ -99,22 +99,24 @@ logger.debug("MOCK tests: ", merchantId, serverName, version, session_id, u_emai
 
 
 class SequenceMeta(type):
-    def __new__(mcs, name, bases, dict):
+    "create tests for all methods in access sdk"
+    def __new__(mcs, name, bases, dictionary):
 
-        def gen_test(m):
+        def gen_test(method):
+            "create test for each method in access sdk"
             def test(self):
-                """main function that collect all methods from AccessSDK 
+                """main function that collect all methods from AccessSDK
                 and create unit-tests for them"""
                 self.assertRaises(
-                    HTTPError, 
+                    HTTPError,
                     Mock(side_effect=HTTPError(
-                                url=serverName, code=401, msg='Not Authorised', hdrs=None, fp=None)))
+                        url=serverName, code=401, msg='Not Authorised', hdrs=None, fp=None)))
             return test
 
-        for i in range(len(method_list)):
-            test_name = "test_%s" % method_list[i]
-            dict[test_name] = gen_test(method_list[i])
-        return type.__new__(mcs, name, bases, dict)
+        for method in method_list:
+            test_name = "test_%s" % method
+            dictionary[test_name] = gen_test(method)
+        return type.__new__(mcs, name, bases, dictionary)
 
 
 class TestSequence(six.with_metaclass(SequenceMeta, unittest.TestCase)):
@@ -142,7 +144,7 @@ class TestAPIAccessMock(unittest.TestCase):
     def access_methods_mocked(self, method, exp_response):
         """assert the expected results from access_sdk's methods"""
         access_methods = {'get_decision': args, 'get_device': args[0], 'get_velocity': args}
-        real_method = MagicMock(name=method, return_value  = exp_response)
+        real_method = MagicMock(name=method, return_value=exp_response)
         assert real_method(access_methods[method]) == exp_response
         return True
 
@@ -162,12 +164,12 @@ class TestAPIAccessMock(unittest.TestCase):
         """should catch the empty or None username and password
          "missing_credentials - ValueError: Invalid value'
         """
-        msg_Error = error
-        msg = Mock(side_effect=error(msg_Error))
+        msgError = error
+        msg = Mock(side_effect=error(msgError))
         for target in ['get_decision', 'get_velocity']:
             for params in param_list:
                 with self.assertRaises(error):
-                    getattr(self.access_sdk, target)(params, return_value = msg())
+                    getattr(self.access_sdk, target)(params, return_value=msg())
         return True
 
     def test_mock_invalid_credentials(self):
@@ -175,21 +177,20 @@ class TestAPIAccessMock(unittest.TestCase):
         if missing credentials raise ValueError: Invalid value'
         """
         self.assertTrue(self.invalid_credentials(
-                            error=ValueError,
-                            param_list=[[session_id, '', ''], [session_id, '', None]],
-                            msg="ValueError: Invalid value"))
+            error=ValueError,
+            param_list=[[session_id, '', ''], [session_id, '', None]],
+            msg="ValueError: Invalid value"))
 
     def test_mock_missing_credentials(self):
         """should catch the missing username and password
          "missing_credentials - TypeError for missing required positional argument
         """
-        msg_TypeError = "TypeError: get_decision() missing 2 required\
+        msgTypeError = "TypeError: get_decision() missing 2 required\
         positional arguments: 'username' and 'password'"
         self.assertTrue(self.invalid_credentials(
-                            error=TypeError,
-                            param_list=[session_id],
-                            msg=msg_TypeError)
-                            )
+            error=TypeError,
+            param_list=[session_id],
+            msg=msgTypeError))
 
     @patch('kount_access.access_sdk.AccessSDK')
     def test_mock_invalid_session(self, access):
@@ -200,12 +201,12 @@ class TestAPIAccessMock(unittest.TestCase):
             url=serverName, code=401, msg=msg, hdrs=None, fp=None))
         for session in [None, '']:
             try:
-                d = self.access_sdk.get_device(session, return_value = msg_401())
+                self.access_sdk.get_device(session, return_value=msg_401())
             except HTTPError as err:
                 self.assertEqual(msg, err.msg)
                 self.assertEqual(401, err.code)
             with self.assertRaises(HTTPError):
-                self.access_sdk.get_device(session_id, return_value = msg_401())
+                self.access_sdk.get_device(session_id, return_value=msg_401())
             with self.assertRaises(HTTPError):
                 msg_401()
 
