@@ -152,7 +152,10 @@ class AccessSDK:
         @param value: Value to hash.
         @return Hashed value.
         """
-        return hashlib.sha256(value.encode('utf-8')).hexdigest()
+        if value:
+            return hashlib.sha256(value.encode('utf-8')).hexdigest()
+        else:
+            raise ValueError("Invalid value '%s'."% value)
 
     def __request(self, url, values=None):
         """
