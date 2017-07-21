@@ -79,7 +79,7 @@ class TestAPIAccess(unittest.TestCase):
         self.method_list = methods_list
         self.assertEqual(self.method_list, ['get_decision', 'get_device', 'get_velocity'])
         self.access_sdk = AccessSDK(serverName, merchantId, apiKey, version)
-        self.fake_arg = ['8f18a81cfb6e3179ece7138ac81019aa', 'test@kount.com', 'password']
+        self.fake_arg = arg
 
     def error_handling(self, err):
         "common error_handling for http 401"
@@ -93,6 +93,8 @@ class TestAPIAccess(unittest.TestCase):
         self.assertEqual('8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', u)
         p = self.access_sdk._get_hash(u'password')
         self.assertEqual('5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', p)
+        self.assertRaises(ValueError, self.access_sdk._get_hash, None)
+        self.assertRaises(ValueError, self.access_sdk._get_hash, '')
 
     def test_api_get_device(self):
         "get_device"
@@ -121,12 +123,12 @@ class TestAPIAccess(unittest.TestCase):
     def test_api_requests_empty_credentials(self):
         "empty credentials - ValueError: Invalid value ''"
         for target in ['get_decision', 'get_velocity']:
-            self.assertRaises(ValueError, getattr(self.access_sdk, target), *[session_id, '', ''])
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[session_id, '', ''])
 
     def test_api_requests_credentials_none(self):
         "credentials None - ValueError: Invalid value 'None'"
         for target in ['get_decision', 'get_velocity']:
-            self.assertRaises(ValueError, getattr(self.access_sdk, target), *[session_id, None, None])
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[session_id, None, None])
 
     def test_api_requests_missing_credentials(self):
         "missing_credentials - TypeError: get_decision() missing 2 required positional arguments: 'username' and 'password'"

@@ -3,6 +3,9 @@
 # This file is part of the Kount access python sdk project
 # https://github.com/Kount/kount-access-python-sdk/)
 # Copyright (C) 2017 Kount Inc. All Rights Reserved.
+"""
+access_sdk module Contains functions for a client to call Kount Access's API Service.
+"""
 
 from __future__ import absolute_import, unicode_literals, division, print_function
 __author__ = "Kount Access SDK"
@@ -11,19 +14,20 @@ __maintainer__ = "Kount Access SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
 
-
-"""
-access_sdk module Contains functions for a client to call Kount Access's API Service.
-"""
 import base64
 import hashlib
 import urllib
 try:
-    import urllib2
+    import urllib2 as urllibr
     py27 = True
 except ImportError:
     py27 = False
+    import urllib.request as urllibr
 import json
+import logging
+logging.basicConfig()
+
+logger = logging.getLogger('kount.access')
 
 
 class AccessSDK:
@@ -70,7 +74,7 @@ class AccessSDK:
         @param response: JSON representation of the response.
         @return: Dictionary representation of the response.
         """
-        #self.logger.error(json.loads(response))
+        logger.debug(json.loads(response))
         return json.loads(response)
 
     def get_velocity(self, session, username, password, additional_params=None):
@@ -104,6 +108,22 @@ class AccessSDK:
         """
         return self.__get_data_using_velocity_params('decision', session, username, password, additional_params)
 
+    def _prepare_params(self, session, username, password):
+        """
+        prepare_params for requests; username or password could be Null or empty string.
+        if any of username or password is Null or '', both are not in the params dict
+        @param session - session id.
+        @param username Username.
+        @param password Password.
+        @return dict.
+        """
+        params = {'v': self.version, 's': session}
+        if all(i for i in [username, password]):
+            params['uh'] = self._get_hash(username)
+            params['ph'] = self._get_hash(password),
+            params['ah'] = self._get_hash("%s:%s"%(username, password))
+        return params
+
     def __get_data_using_velocity_params(self, endpoint, session, username, password, additional_params=None):
         """
         Helper, web request to the Kount Access API velocity based endpoints.
@@ -114,15 +134,10 @@ class AccessSDK:
         @param additional_params: Dictionary of key value pairs representing param name and param value.
         @return response from api.
         """
+        params = self._prepare_params(session, username, password)
         request = {
             'url': 'https://{}/api/{}'.format(self.host, endpoint),
-            'params': {
-                'v': self.version,
-                's': session,
-                'uh': self._get_hash(username),
-                'ph': self._get_hash(password),
-                'ah': self._get_hash(username + ":" + password)
-            }
+            'params': params
         }
         if additional_params is not None:
             self.__add_param(request, additional_params)
@@ -153,7 +168,7 @@ class AccessSDK:
         @return Hashed value.
         """
         if value:
-            return hashlib.sha256(value.encode('utf-8')).hexdigest()
+            return hashlib.sha256(str(value).encode('utf-8')).hexdigest()
         else:
             raise ValueError("Invalid value '%s'."% value)
 
@@ -164,15 +179,17 @@ class AccessSDK:
         @param values
         @return request result.
         """
-        if py27:
-            request = urllib2.Request(url, values, self.__get_authorization_header())
-            response = urllib2.urlopen(request)
-        else:
-            if values:
-                values = values.encode('utf-8')
-            request = urllib.request.Request(url, values, self.__get_authorization_header())
-            response = urllib.request.urlopen(request)
+        if values:
+            values = values.encode('utf-8')
+        request = urllibr.Request(url, values, self.__get_authorization_header())
+        try:
+            response = urllibr.urlopen(request)
+        except urllibr.URLError as e:
+            err = "%s.%s, url=%s, values=%s" % (urllibr.__name__, e.__class__.__name__, url, values)
+            logger.error(err)
+            raise
         result = response.read()
+        logger.debug(result)
         return self.__format_response(result)
 
     def __request_get(self, url, values):
@@ -183,9 +200,10 @@ class AccessSDK:
         @return request result.
         """
         if py27:
-            return self.__request(url + "?" + urllib.urlencode(values))
+            v = urllib.urlencode(values)
         else:
-            return self.__request(url + "?" + urllib.parse.urlencode(values))
+            v = urllib.parse.urlencode(values)
+        return self.__request(url + "?" + v)
 
     def __request_post(self, url, values):
         """

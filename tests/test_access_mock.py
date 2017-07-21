@@ -4,9 +4,7 @@
 # This file is part of the Kount access python sdk project
 # https://github.com/Kount/kount-access-python-sdk/)
 # Copyright (C) 2017 Kount Inc. All Rights Reserved.
-
 "integration mock tests"
-
 from __future__ import absolute_import, unicode_literals, division, print_function
 __author__ = "Kount Access SDK"
 __version__ = "2.1.1"
@@ -14,36 +12,36 @@ __maintainer__ = "Kount Access SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
 
-
 import logging
 import unittest
-import six
+import urllib
 
 try:
-    from mock import patch, MagicMock, Mock
+    from mock import patch, MagicMock, Mock, call
     from urllib2 import HTTPError
+    import urllib2
     py27 = True
 except ImportError:
-    from unittest.mock import patch, MagicMock, Mock
+    from unittest.mock import patch, MagicMock, call
     from urllib.error import HTTPError
     py27 = False
+import six
 
 import kount_access.access_sdk
 
 #~ Merchant's customer ID.
 merchantId = 999666
 
-#~ Sample host. this should be the name of the Kount Access API server you want to connect to.
-serverName = 'api-sandbox01.kountaccess.com'
+#~ Kount host for integration tests.
+serverName = '%s.kountbox.net' % merchantId
 version = '0210'
 logger = logging.getLogger('kount.test')
 
 #~ must be 32 characters long
 session_id = '8f18a81cfb6e3179ece7138ac81019aa'
-apiKey = 'YOUR-API-KEY-GOES-HERE'
+apiKey = 'FAKE-API-KEY'
 logger = logging.getLogger('kount.test')
-session_id = '8f18a81cfb6e3179ece7138ac81019aa'
-device_responce = {
+device_response = {
     "device":
         {"id": "06f5da990b2e9513267865eb0d6cf0df",
          "ipAddress": "64.128.91.251",
@@ -56,7 +54,7 @@ device_responce = {
     "response_id": "fc5c7cb1bd7538d3b64160c5dfedc3b9"
     }
 
-velocity_responce = {
+velocity_response = {
     "device":
         {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251",
          "ipGeo": "US", "mobile": 0, "proxy": 0},
@@ -70,7 +68,7 @@ velocity_responce = {
         }
     }
 
-decision_responce = {
+decision_response = {
     "decision":
         {"errors": [],
          "reply":
@@ -89,13 +87,16 @@ decision_responce = {
             "ip_address": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
             "password": {"alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1},
             "user": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
-            }}
+        }}
 
 #~ Access SDK methods
 method_list = ['get_device', 'get_decision', 'get_velocity']
-u_email = 'test@test.com'
-args = [session_id, u_email, 'password']
-logger.debug("MOCK tests: ", merchantId, serverName, version, session_id, u_email, method_list)
+u_email = u'test@test.com'
+pswd = u'password'
+args = [session_id, u_email, pswd]
+logger.debug("MOCK tests: merchantId=%s, serverName=%s, version=%s,\
+             session_id=%s, u_email=%s, method_list=%s",
+             merchantId, serverName, version, session_id, u_email, method_list)
 
 
 class SequenceMeta(type):
@@ -110,7 +111,7 @@ class SequenceMeta(type):
                 self.assertRaises(
                     HTTPError,
                     Mock(side_effect=HTTPError(
-                        url=serverName, code=401, msg='Not Authorised', hdrs=None, fp=None)))
+                        url=serverName, code=401, msg='Not Authorized', hdrs=None, fp=None)))
             return test
 
         for method in method_list:
@@ -118,12 +119,13 @@ class SequenceMeta(type):
             dictionary[test_name] = gen_test(method)
         return type.__new__(mcs, name, bases, dictionary)
 
-
 class TestSequence(six.with_metaclass(SequenceMeta, unittest.TestCase)):
+    "TestSequence - generate tests for each method in AccessSDK"
     __metaclass__ = SequenceMeta
 
 
 class TestAPIAccessMock(unittest.TestCase):
+    "TestAPIAccessMock"
     maxDiff = None
 
     @patch('kount_access.access_sdk.AccessSDK')
@@ -136,10 +138,7 @@ class TestAPIAccessMock(unittest.TestCase):
     def test_api_access_methods(self):
         """mock of hash method"""
         self.access_sdk.mockhash.return_value = '42'
-        u = self.access_sdk.mockhash(u'admin')
-        self.assertEqual(self.access_sdk.mockhash.return_value, u)
-        p = self.access_sdk.mockhash(u'password')
-        self.assertEqual(self.access_sdk.mockhash.return_value, p)
+        self.assertEqual(self.access_sdk.mockhash(pswd), '42')
 
     def access_methods_mocked(self, method, exp_response):
         """assert the expected results from access_sdk's methods"""
@@ -150,22 +149,25 @@ class TestAPIAccessMock(unittest.TestCase):
 
     def test_mock_get_decision(self):
         """get_decision"""
-        self.assertTrue(self.access_methods_mocked('get_decision', decision_responce))
+        self.assertTrue(self.access_methods_mocked('get_decision', decision_response))
 
     def test_mock_get_device(self):
         """get_device"""
-        self.assertTrue(self.access_methods_mocked('get_device', device_responce))
+        self.assertTrue(self.access_methods_mocked('get_device', device_response))
 
     def test_mock_get_velocity(self):
         """get_velocity"""
-        self.assertTrue(self.access_methods_mocked('get_velocity', velocity_responce))
+        self.assertTrue(self.access_methods_mocked('get_velocity', velocity_response))
 
     def invalid_credentials(self, error, param_list, msg):
         """should catch the empty or None username and password
          "missing_credentials - ValueError: Invalid value'
         """
-        msgError = error
-        msg = Mock(side_effect=error(msgError))
+        if error is TypeError:
+            msg = Mock(side_effect=error(error))
+        else:
+            assert error is HTTPError
+            msg = Mock(side_effect=error(url=serverName, code=401, msg=error, hdrs=None, fp=None))
         for target in ['get_decision', 'get_velocity']:
             for params in param_list:
                 with self.assertRaises(error):
@@ -177,9 +179,9 @@ class TestAPIAccessMock(unittest.TestCase):
         if missing credentials raise ValueError: Invalid value'
         """
         self.assertTrue(self.invalid_credentials(
-            error=ValueError,
+            error=HTTPError,
             param_list=[[session_id, '', ''], [session_id, '', None]],
-            msg="ValueError: Invalid value"))
+            msg="HttpError: Not Authorized"))
 
     def test_mock_missing_credentials(self):
         """should catch the missing username and password
@@ -210,9 +212,77 @@ class TestAPIAccessMock(unittest.TestCase):
             with self.assertRaises(HTTPError):
                 msg_401()
 
+    @patch('kount_access.access_sdk.logging')
+    def test_mock_logger_get_device(self, mock_logger):
+        """get_device"""
+        with patch.object(kount_access.access_sdk.AccessSDK, method_list[0],
+                          return_value=device_response) as mock_method:
+            thing = kount_access.access_sdk.AccessSDK(1, 2, 3)
+            thing.get_device(session_id)
+            mock_logger.debug(session_id)
+        mock_method.assert_has_calls([call(session_id)])
+        mock_logger.debug.assert_has_calls([call(session_id)])
+        self.assertTrue(self.access_methods_mocked(method_list[0], device_response))
+        mock_method.assert_called_once_with(session_id)
+        mock_logger.debug.assert_called_once_with(session_id)
+
+    @patch('kount_access.access_sdk.logging')
+    def test_mock_logger(self, mock_logger):
+        """mock_logger debug"""
+        mock_logger.debug(session_id)
+        mock_logger.debug.assert_called_once_with(session_id)
+
+    def test_mock_logger_all(self):
+        """test_mock_logger all methods"""
+        if py27:
+            error1 = urllib2.URLError
+        else:
+            error1 = urllib.error.URLError
+        user = 'USER'
+        pswd = 'PASS'
+        host = 'test.kount.net'
+        with patch.object(kount_access.access_sdk.logger, 'error', return_value=None) as mock_method:
+            thing = kount_access.access_sdk.AccessSDK(host, merchantId, 'apiKey')
+            ah = thing._get_hash('%s:%s' % (user, pswd))
+            p = "('%s',)" % thing._get_hash(pswd)
+            if py27:
+                ph = urllib.quote_plus(p)
+                urllibr = 'urllib2.URLError'
+            else:
+                ph = urllib.parse.quote_plus(p)
+                urllibr = 'urllib.request.URLError'
+            uh = thing._get_hash(user)
+            for target in method_list:
+                method = target.split('get_')[1]
+                h = 'https://%s/api/%s' % (host, method)
+                if target == method_list[0]:
+                    get_method = True
+                    params = [session_id]
+                    url_encodded = 's=%s&v=%s' % (session_id, version)
+                    pp = u'url=%s?%s, values=None' % (h, url_encodded)
+                else:
+                    params = [session_id, user, pswd, None]
+                    url_encodded = 'ah=%s&s=%s&ph=%s&uh=%s&v=%s' % (ah, session_id, ph, uh, version)
+                    pp = u'url=%s, values=%s' % (h, url_encodded)
+                param_list = "%s, %s" % (urllibr, pp)
+                params_call = call(param_list)
+                with self.assertRaises(error1):
+                    getattr(thing, target)(*params)
+                arg_list = [session_id, version, urllibr, uh, ah, ph]
+                if py27:
+                    self.assertEqual(mock_method.call_args, params_call)
+                else:
+                    if get_method:
+                        arg_text = str(mock_method.call_args[0])
+                        for a in arg_list[:3]:
+                            self.assertIn(a, arg_text)
+                    else:
+                        for a in arg_list:
+                            self.assertIn(a, arg_text)
+
 
 if __name__ == "__main__":
     unittest.main(
         verbosity=2,
-        #~ defaultTest="TestSequence"
+        #~ defaultTest="TestAPIAccessMock.test_mock_logger"
     )
