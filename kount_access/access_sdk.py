@@ -104,6 +104,22 @@ class AccessSDK:
         """
         return self.__get_data_using_velocity_params('decision', session, username, password, additional_params)
 
+    def _prepare_params(self, session, username, password):
+        """
+        prepare_params for requests; username or password could be Null or empty string.
+        if any of username or password is Null or '', both are not in the params dict
+        @param session - session id.
+        @param username Username.
+        @param password Password.
+        @return dict.
+        """
+        params = {'v': self.version, 's': session}
+        if all(i for i in [username, password]):
+            params['uh'] = self._get_hash(username)
+            params['ph'] = self._get_hash(password),
+            params['ah'] = self._get_hash("%s:%s"%(username, password))
+        return params
+
     def __get_data_using_velocity_params(self, endpoint, session, username, password, additional_params=None):
         """
         Helper, web request to the Kount Access API velocity based endpoints.
@@ -114,15 +130,10 @@ class AccessSDK:
         @param additional_params: Dictionary of key value pairs representing param name and param value.
         @return response from api.
         """
+        params = self._prepare_params(session, username, password)
         request = {
             'url': 'https://{}/api/{}'.format(self.host, endpoint),
-            'params': {
-                'v': self.version,
-                's': session,
-                'uh': self._get_hash(username),
-                'ph': self._get_hash(password),
-                'ah': self._get_hash(username + ":" + password)
-            }
+            'params': params
         }
         if additional_params is not None:
             self.__add_param(request, additional_params)
@@ -153,7 +164,7 @@ class AccessSDK:
         @return Hashed value.
         """
         if value:
-            return hashlib.sha256(value.encode('utf-8')).hexdigest()
+            return hashlib.sha256(str(value).encode('utf-8')).hexdigest()
         else:
             raise ValueError("Invalid value '%s'."% value)
 
