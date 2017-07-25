@@ -14,6 +14,8 @@ This library allows you to connect to the Kount Access API services and get info
 #. Login Information used by the user (login/password)
 
 
+
+
 **Kount Access™** is designed for high-volume login, account creation and affiliate networks, cross-checking individual component with several other components to calculate the velocity of related login attempts, and providing the client with dozens of velocity checks and essential data to help determine the legitimacy of the user and account owners.
 
 After the user submits their credentials for login (data collection completes), the merchant can request information about the device and then can request velocity details (the tallies of credential combinations
@@ -49,7 +51,7 @@ Access Inquiry Service API Endpoints reference can be found on the dedicated [[E
 
 --------------------------------------------------------------
 
-On the [[Examples|examples]] page, you can find a few lines of sample code showing how to initialize the SDK, do various requests and analyze their responses.
+On the [[Examples|Kount-Access-Examples]] page, you can find a few lines of sample code showing how to initialize the SDK, do various requests and analyze their responses.
 
 --------------------------------------------------------------
 
@@ -58,3 +60,17 @@ On the [[Examples|examples]] page, you can find a few lines of sample code showi
 --------------------------------------------------------------
 
 .:information_source: This SDK is both Python 2.7.13 and 3.6.x compatible.
+
+
+Setting up IDE projects
+-------------------------------------------------
+
+Komodo IDE/Edit, Scite, Visual Studio - have automatic python integration
+
+Who do I talk to?
+--------------------------
+
+#. Repo owner or admin
+
+#. Other community or team contact
+
