@@ -4,7 +4,7 @@
 # This file is part of the Kount access python sdk project
 # https://github.com/Kount/kount-access-python-sdk/)
 # Copyright (C) 2017 Kount Inc. All Rights Reserved.
-"integration mock tests"
+"mock tests"
 from __future__ import absolute_import, unicode_literals, division, print_function
 __author__ = "Kount Access SDK"
 __version__ = "2.1.1"
@@ -91,12 +91,12 @@ decision_response = {
 
 #~ Access SDK methods
 method_list = ['get_device', 'get_decision', 'get_velocity']
-u_email = u'test@test.com'
+user = u'test@test.com'
 pswd = u'password'
-args = [session_id, u_email, pswd]
+args = [session_id, user, pswd]
 logger.debug("MOCK tests: merchantId=%s, serverName=%s, version=%s,\
-             session_id=%s, u_email=%s, method_list=%s",
-             merchantId, serverName, version, session_id, u_email, method_list)
+             session_id=%s, method_list=%s",
+             merchantId, serverName, version, session_id, method_list)
 
 
 class SequenceMeta(type):

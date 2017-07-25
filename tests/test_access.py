@@ -33,7 +33,7 @@ Sample Data (update with data used in your testing to receive the actual respons
 Sample session ID - Fake user session (this should be retrieved from the 
   Kount Access Data Collector Client SDK.) This will be a 32 character hash value
 Users credentials used to login for the test:
-  - u_email,
+  - user,
   - pswd
 apiKey - This should be the API Key you were issued from Kount
 merchantId - Merchant's customer ID at Kount.
@@ -44,7 +44,7 @@ apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI5OTk2NjYiLCJhdWQiOiJLb
 serverName = 'api-sandbox01.kountaccess.com'
 version = '0210'
 pswd = 'password'
-u_email = 'test@kount.com'
+user = 'test@kount.com'
 
 logger = logging.getLogger('kount.test')
 
@@ -53,8 +53,8 @@ session_id = '8f18a81cfb6e3179ece7138ac81019aa'
 
 #~ Access SDK methods 
 methods_list = [func for func in dir(AccessSDK) if callable(getattr(AccessSDK, func)) and not func.startswith("_")]
-logger.debug(merchantId, serverName, version, session_id, u_email, methods_list)
-arg = [session_id, u_email, pswd]
+logger.debug(merchantId, serverName, version, session_id, user, methods_list)
+arg = [session_id, user, pswd]
 
 
 class TestAPIAccess(unittest.TestCase):
@@ -139,13 +139,13 @@ class TestAPIAccess(unittest.TestCase):
         "session empty - HTTPError - HTTP Error 401: Unauthorized"
         self.assertRaises(HTTPError, self.access_sdk.get_device, '')
         for target in ['get_decision', 'get_velocity']:
-            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *['', u_email, pswd])
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *['', user, pswd])
 
     def test_api_requests_missing_session(self):
         "missing_session - HTTPError - HTTP Error 401: Unauthorized"
         self.assertRaises(HTTPError, self.access_sdk.get_device, None)
         for target in ['get_decision', 'get_velocity']:
-            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[None, u_email, pswd])
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[None, user, pswd])
 
 
 if __name__ == "__main__":
