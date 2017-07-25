@@ -27,173 +27,133 @@ except ImportError:
 import json
 import logging
 from kount_access.access_sdk import AccessSDK
-from kount_access.settings import pswd, u_email, version, serverName, apiKey, merchantId
-#~ from kount_access.pretty_print import pretty_print_POST
-assert apiKey != 'YOUR-API-KEY-GOES-HERE'
+
+"""
+Kount Access integration tests
+
+All parameters are provided by Kount and configured to utilize specific thresholds.
+"""
+
+#~ integration tests merchant ID
+merchantId = 999666
+
+#~ API Key for Kount Access authorization
+apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI5OTk2NjYiLCJhdWQiOiJLb3VudC4xIiwiaWF0IjoxNDk5ODcwNDgwLCJzY3AiOnsia2EiOnRydWUsImtjIjp0cnVlLCJhcGkiOnRydWUsInJpcyI6dHJ1ZX19.yFan6moxBonnG8Vk9C_qRpF-eTF00_MRBwgqMdNdy8U'
+
+#~ Kount Access service host for integration tests
+serverName = 'api-sandbox01.kountaccess.com'
+
+#~ Kount Access service version to use
+version = '0210'
+
+#~ username and password request parameter values
+user = 'test@kount.com'
+pswd = 'password'
 
 logger = logging.getLogger('kount.test')
+
+#~ session ID parameter value
 session_id = '8f18a81cfb6e3179ece7138ac81019aa'
 
-method_list = [func for func in dir(AccessSDK) if callable(getattr(AccessSDK, func)) and not func.startswith("__")]
-logger.info(merchantId, serverName, version, session_id, u_email, method_list)
+#~ Access SDK methods 
+methods_list = [func for func in dir(AccessSDK) if callable(getattr(AccessSDK, func)) and not func.startswith("_")]
+logger.debug(merchantId, serverName, version, session_id, user, methods_list)
+arg = [session_id, user, pswd]
 
 
 class TestAPIAccess(unittest.TestCase):
+    """Request and response from Kount Access API.
+   If you are just looking for information about the device (like the
+   device id, or pierced IP Address) then use the get_device function.
+   When requesting Velocity information, the Device information is also
+   included in this response.
+   If you want Kount Access to evaluate possible threats using our
+   Thresholds Engine, you will want to call the get_decision endpoint.
+   This response includes Device information and Velocity data in addition
+   to the Decision information. The decision value can be either 
+   "A" - Approve, or "D" - Decline. In addition it will
+   show the ruleEvents evaluated that forced a "D" (Decline) result. If you
+   do not have any thresholds established it will always default to
+   "A" (Approve). For more information on setting up thresholds, consult the
+   User Guide.
+   If you make a bad request you will get a response with an ERROR_CODE
+   and ERROR_MESSAGE in it.
+   """
     def setUp(self):
-        self.method_list = method_list
-        assert self.method_list == ['get_decision', 'get_device', 'get_velocity']
+        self.method_list = methods_list
+        self.assertEqual(self.method_list, ['get_decision', 'get_device', 'get_velocity'])
         self.access_sdk = AccessSDK(serverName, merchantId, apiKey, version)
-        self.arg = [session_id, u_email, pswd]
+        self.fake_arg = arg
 
-    def test_api_access_methods(self):
-        u = self.access_sdk.__get_hash__('admin')
+    def error_handling(self, err):
+        "common error_handling for http 401"
+        logger.debug("UNAUTHORIZED %s, %s", err.msg, err.code)
+        self.assertEqual('UNAUTHORIZED', err.msg.upper())
+        self.assertEqual(401, err.code)
+        raise
+
+    def test_api_access_get_hash(self):
+        u = self.access_sdk._get_hash(u'admin')
         self.assertEqual('8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', u)
-        p = self.access_sdk.__get_hash__(u'password')
+        p = self.access_sdk._get_hash(u'password')
         self.assertEqual('5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', p)
+        self.assertRaises(ValueError, self.access_sdk._get_hash, None)
+        self.assertRaises(ValueError, self.access_sdk._get_hash, '')
 
-    @unittest.skipIf(py27 is True, "subTest not supported in this Python 2.7.x")
-    def test_subtest(self):
-        """python 3.6.x only - subTest"""
-        for i in range(len(self.method_list)):
-            with self.subTest(i=i):
-                if 'get_device' in self.method_list[i]:
-                    arg = [session_id]
-                    self.assertRaises(HTTPError, getattr(self.access_sdk, self.method_list[i]), arg)
-                else:
-                    arg=self.arg
-                    self.assertRaises(HTTPError, getattr(self.access_sdk, self.method_list[i]), session_id, u_email, pswd)
-                try:
-                    getattr(self.access_sdk, self.method_list[i])(*arg)
-                except HTTPError as err:
-                    logger.debug("UNAUTHORIZED %s, %s", err.msg, err.code)
-                    self.assertEqual('UNAUTHORIZED', err.msg.upper())
-                    self.assertEqual(401, err.code)
-                    raise
-
-def make_function(m):
-    """make_function() is  the function used internally by def()
-    to produce Python callable objects which wrap member functions.
-    in order to execute a specific test for method in SDK, in unittest.main use:
-    defaultTest="TestAPIAccess.test_{method_name}
-    exmpl. defaultTest="TestAPIAccess.test_get_decision"
-    """
-    def common(self):
-        """main function that collect all methods from AccessSDK and create unit-tests for them"""
-        if m in ['get_device']:
-            arg = [session_id]
-        else:
-            arg = [session_id, u_email, pswd]
+    def test_api_get_device(self):
+        "get_device"
+        self.assertRaises(HTTPError, self.access_sdk.get_device, self.fake_arg[0])
         try:
-            getattr(self.access_sdk, m)(*arg)
+            self.access_sdk.get_device(session_id)
         except HTTPError as err:
-            logger.debug("UNAUTHORIZED %s, %s", err.msg, err.code)
-            self.assertEqual('UNAUTHORIZED', err.msg.upper())
-            self.assertEqual(401, err.code)
-    return common
+            self.error_handling(err)
 
+    def test_api_get_decision(self):
+        "get_decision"
+        self.assertRaises(HTTPError, self.access_sdk.get_decision, *self.fake_arg)
+        try:
+            self.access_sdk.get_decision(*arg)
+        except HTTPError as err:
+            self.error_handling(err)
 
-def attributes_set_to_class(i, class_name=TestAPIAccess, make_function=make_function, **kwd):
-    """set attributes to class like test_get_decision"""
-    test_func = make_function(method_list[i])
-    setattr(class_name, 'test_%s'%method_list[i], test_func)
-    return class_name
+    def test_api_get_velocity(self):
+        "get_velocity"
+        self.assertRaises(HTTPError, self.access_sdk.get_velocity, *self.fake_arg)
+        try:
+            self.access_sdk.get_velocity(*arg)
+        except HTTPError as err:
+            self.error_handling(err)
 
+    def test_api_requests_empty_credentials(self):
+        "empty credentials - ValueError: Invalid value ''"
+        for target in ['get_decision', 'get_velocity']:
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[session_id, '', ''])
 
-for i in range(len(method_list)):
-    attributes_set_to_class(i, class_name=TestAPIAccess, make_function=make_function)
-
-
-class TestAPIRequests(unittest.TestCase):
-    def setUp(self):
-        self.headers = {}
-        self.url_get = "https://%s:%s@%s/api/"%(u_email, pswd, serverName)
-        self.params = {'v': version, 's': session_id}
-        #~ self.headers['Accept'] = 'application/json'
-        #~ self.headers['Content-Type'] = 'application/json'
-        m = str(merchantId).encode('utf-8')
-        a = base64.standard_b64encode(m +  ":".encode('utf-8') + apiKey.encode('utf-8'))
-        self.headers['Authorization'] = 'Basic %s' %a.decode('utf-8')
-
-    def test_api_requests(self):
-        "returns device, velocity and decision response"
-        failed = []
-        for target in method_list:
-            url = "%s%s"%(self.url_get, target.split('get_')[1])
-            logger.info("url = %s", url)
-            if 'device' in target:
-                self.r = requests.get(url,
-                                    headers=self.headers,
-                                    params=self.params,
-                                    )
-            else:
-                self.r = requests.post(url,
-                                    headers=self.headers,
-                                    params=self.params,
-                                    )
-            logger.debug("self.r= %s, self.r.status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
-            try:
-                self.assertEqual(200, self.r.status_code)
-            except AssertionError as e:
-                logger.debug("target= %s, e= %s, text= %s", target, e, self.r.text)
-                failed.append((target, e, self.r.text))
-            else:
-                self.assertTrue(self.r.text)
-                self.assertTrue(len(self.r.json()))
-            self.assertNotIn('Error', self.r.text)
-        if failed:
-            raise Exception(failed)
-
-    def test_api_requests_missing_params(self):
-        "missing_params in request"
-        params = {}
-        for target in method_list:
-            url = "%s%s"%(self.url_get, target.split('get_')[1])
-            logger.info("url = %s", url)
-            if 'device' in target:
-                self.r = requests.get("%s"%(url),
-                                    headers=self.headers,
-                                    params=params,
-                                    )
-            else:
-                self.r = requests.post("%s"%(url),
-                                    headers=self.headers,
-                                    params=params,
-                                    )
-            logger.debug("self.r= %s, self.r.status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
-            self.assertNotEqual(200, self.r.status_code)
-            self.assertNotIn('Error', self.r.text)
+    def test_api_requests_credentials_none(self):
+        "credentials None - ValueError: Invalid value 'None'"
+        for target in ['get_decision', 'get_velocity']:
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[session_id, None, None])
 
     def test_api_requests_missing_credentials(self):
-        "missing_credentials"
-        failed = []
-        url_get = "https://%s:%s@%s/api/"%('', '', serverName)
-        for target in method_list:
-            url = "%s%s"%(url_get, target.split('get_')[1])
-            logger.debug("url= %s", url)
-            if 'device' in target:
-                self.r = requests.get("%s"%(url),
-                                    headers=self.headers,
-                                    params=self.params,
-                                    )
-            else:
-                self.r = requests.post("%s"%(url),
-                                    headers=self.headers,
-                                    params=self.params,
-                                    )
-            logger.debug("self.r= %s, self.r.status_code= %s, text= %s", self.r, self.r.status_code, self.r.text)
-            try:
-                self.assertEqual(401, self.r.status_code)
-            except AssertionError as e:
-                logger.debug("target= %s, e= %s, text= %s", target, e, self.r.text)
-                failed.append((target, e, self.r.text))
-            self.assertNotIn('Error', self.r.text)
-        if failed:
-            raise Exception(failed)
+        "missing_credentials - TypeError: get_decision() missing 2 required positional arguments: 'username' and 'password'"
+        for target in ['get_decision', 'get_velocity']:
+            self.assertRaises(TypeError, getattr(self.access_sdk, target), session_id)
+
+    def test_api_requests_empty_session(self):
+        "session empty - HTTPError - HTTP Error 401: Unauthorized"
+        self.assertRaises(HTTPError, self.access_sdk.get_device, '')
+        for target in ['get_decision', 'get_velocity']:
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *['', user, pswd])
+
+    def test_api_requests_missing_session(self):
+        "missing_session - HTTPError - HTTP Error 401: Unauthorized"
+        self.assertRaises(HTTPError, self.access_sdk.get_device, None)
+        for target in ['get_decision', 'get_velocity']:
+            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[None, user, pswd])
 
 
 if __name__ == "__main__":
     unittest.main(
         verbosity=2,
         #~ defaultTest="TestAPIAccess.test_get_decision"
-        #~ defaultTest="TestAPIRequests"
     )
