@@ -29,26 +29,30 @@ import logging
 from kount_access.access_sdk import AccessSDK
 
 """
-Sample Data (update with data used in your testing to receive the actual response from Kount Access)
-Sample session ID - Fake user session (this should be retrieved from the 
-  Kount Access Data Collector Client SDK.) This will be a 32 character hash value
-Users credentials used to login for the test:
-  - user,
-  - pswd
-apiKey - This should be the API Key you were issued from Kount
-merchantId - Merchant's customer ID at Kount.
+Kount Access integration tests
+
+All parameters are provided by Kount and configured to utilize specific thresholds.
 """
+
+#~ integration tests merchant ID
 merchantId = 999666
+
+#~ API Key for Kount Access authorization
 apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI5OTk2NjYiLCJhdWQiOiJLb3VudC4xIiwiaWF0IjoxNDk5ODcwNDgwLCJzY3AiOnsia2EiOnRydWUsImtjIjp0cnVlLCJhcGkiOnRydWUsInJpcyI6dHJ1ZX19.yFan6moxBonnG8Vk9C_qRpF-eTF00_MRBwgqMdNdy8U'
-#~ Sample host. this should be the name of the Kount Access API server you want to connect to.
+
+#~ Kount Access service host for integration tests
 serverName = 'api-sandbox01.kountaccess.com'
+
+#~ Kount Access service version to use
 version = '0210'
-pswd = 'password'
+
+#~ username and password request parameter values
 user = 'test@kount.com'
+pswd = 'password'
 
 logger = logging.getLogger('kount.test')
 
-#~ THIS_IS_THE_USERS_SESSION_FROM_JAVASCRIPT_CLIENT_SDK. must be 32 characters long
+#~ session ID parameter value
 session_id = '8f18a81cfb6e3179ece7138ac81019aa'
 
 #~ Access SDK methods 
