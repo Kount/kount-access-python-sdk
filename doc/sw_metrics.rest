@@ -1,0 +1,25 @@
+SW metrics
+..................................
+
+Code coverage
+========================
+
+The *coverage* can be measured with
+
+```
+~/Kount/kount_access$ coverage run -m unittest discover tests
+.......................
+----------------------------------------------------------------------
+Ran 23 tests in 12.729s
+
+```
+
+**coverage=90%**
+
+or generate detailed html coverage in folder ~htmlcov with:
+
+```
+~/Kount/kount_access$ coverage  html --omit=*/local/*,*/.local/*
+```
+
+The html report is in project's folder - sub-folder **htmlcov**
