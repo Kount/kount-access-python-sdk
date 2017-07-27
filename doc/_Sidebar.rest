@@ -30,7 +30,11 @@ Table of contents
 
     * [[/decision|Kount-Access-Endpoints#decision-post-httpskount-access-hostdecision]]
 
+    * [[Sample Response in JSON|Kount-Access-Endpoints#sample-json-response-object]]
+
   * [[Kount Access Sample Code|Kount-Access-Examples]]
 
 * [[Kount Access and Content Security Policy|Kount-Access-and-Content-Security-Policy]]
+
+* [[Kount Access SW metrics|SW-metrics]]
 

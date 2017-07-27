@@ -1,9 +1,12 @@
 Kount Access Examples
 ===============================
 
-So, following the [[prerequisites|Kount-Access-Prerequisites]] SDK users would need:
+So, following the `prerequisites <Kount-Access-Prerequisites.html>`_ SDK users would need:
+
 * Merchant ID
+
 * API Key
+
 * Kount Access service host
 
 Introduction
@@ -18,9 +21,11 @@ There are three requests:
 
  
 
-* `Device <Kount-Access-Examples#device>`_
-* `Velocity <Kount-Access-Examples#velocity>`_
-* `Decision <Kount-Access-Examples#decision>`_
+* `Device <Kount-Access-Examples.html#id1>`_
+
+* `Velocity <Kount-Access-Examples.html#id2>`_
+
+* `Decision <Kount-Access-Examples.html#id3>`_
  
 
 The access_sdk object is constructed using the following elements:
@@ -46,9 +51,10 @@ Gets the Device ID (fingerprint) and other details of the device, for the Sessio
 
  
 
-**Response Example:**
+**Response Example 1:**
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
- 
+
 ::
 
   {
@@ -64,22 +70,21 @@ Gets the Device ID (fingerprint) and other details of the device, for the Sessio
   "response_id": "fc5c7cb1bd7538d3b64160c5dfedc3b9"
   }
 
- 
+
 Velocity
 ^^^^^^^^^^^^
- 
+
 
 Using the ``sessionId`` of the user’s login and the username (uh) and password (ph) values given by the user for login, Kount Access provides information about previous login attempts. The username and password are one-way hashed before the service call is made. This way the user's credentials are encoded and un-decodable when the method is called.
 
- 
+
 ::
 
   result = access_sdk.get_velocity(<sessionId>, <username>, <password>) 
   print("result: %s" % json.loads(result))
 
- 
 
-Response Example:
+Response Example 2:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
 ::
@@ -96,14 +101,14 @@ Response Example:
   }
   }
 
- 
+
 Decision
 ^^^^^^^^^^^^^^^^^
- 
+
 
 Gets the decision value based on threshold(s). This requires the same input as the velocity method, documented above.
 
- 
+
 ::
 
   result = access_sdk.get_decision(<sessionId>, <username>, <password>) 
@@ -111,10 +116,10 @@ Gets the decision value based on threshold(s). This requires the same input as t
 
  
 
-Response Example:
+Response Example 3:
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
- 
+
 ::
 
   {

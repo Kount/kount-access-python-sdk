@@ -1,0 +1,39 @@
+.. kount documentation master file, created by
+   sphinx-quickstart on Wed July 26 01:31:43 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to Kount Access documentation!
+============================================
+
+.. toctree::
+   :maxdepth: 2
+
+         Home <Home.rest>
+         Kount Access Integration <Kount-Access-Integration.rest>
+         Kount Access Prerequisites <Kount-Access-Prerequisites.rest>
+         Kount Access Environments, API-Keys and Thresholds <Kount-Access-EnvironmentsAPIKeysThresholds.rest>
+         Technical Reference <Technical-Reference.rest>
+         Data Collector <Data-Collector.rest>
+         Kount Access Endpoints <Kount-Access-Endpoints.rest>
+         Kount Access Examples <Kount-Access-Examples.rest>
+         Kount Access and Content Security Policy <Kount-Access-and-Content-Security-Policy.rest>
+         SW metrics <SW-metrics.rest>
+         Kount sdk <sdkpython.rest>
+         tests <tests.rest>
+
+
+
+
+.. module:: kount_access
+.. module:: kount_access.access_sdk
+
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

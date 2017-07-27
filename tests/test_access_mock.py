@@ -4,7 +4,7 @@
 # This file is part of the Kount access python sdk project
 # https://github.com/Kount/kount-access-python-sdk/)
 # Copyright (C) 2017 Kount Inc. All Rights Reserved.
-"mock tests"
+"unit tests with mock"
 from __future__ import absolute_import, unicode_literals, division, print_function
 __author__ = "Kount Access SDK"
 __version__ = "2.1.1"

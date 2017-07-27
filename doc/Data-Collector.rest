@@ -1,9 +1,12 @@
-Data Collector
+
+﻿Data Collector
 ======================
  
 The **Kount Access Data Collector** runs in the background at a sub second level while the user is logging into the website via a web clients or browser (see section below) or via a mobile app (**iOS or Android**). Here are the standard requirements for any Data Collection event.
  
-.:information_source: The Risk Inquiry Service is designed to be used in conjunction with the Data Collection process. The Data Collection process is passive and provides no information back to a merchant independent of the Access Inquiry Service.
+:information_source: 
+
+   The Risk Inquiry Service is designed to be used in conjunction with the Data Collection process. The Data Collection process is passive and provides no information back to a merchant independent of the Access Inquiry Service.
 
 Session ID Discussion
 ==============================
@@ -35,16 +38,26 @@ Add the ``<script>`` tag and an ``<img>`` tag to the web page where you want to 
 
 Below is an example where the Data Collector URL is denoted with `DATA_COLLECTOR` and the Merchant ID field ``(m=123456)`` and the Session ID field ``(s=abcdefg12345abababab123456789012)`` are set.
 
-```html 
-<script type='text/javascript' src='https://DATA_COLLECTOR/collect/sdk?m=123456&s=abcdefg12345abababab123456789012'></script>
-<img src='https://DATA_COLLECTOR/logo.gif?m=123456&s=abcdefg12345abababab123456789012' />
-```
-.:information_source: The ``script`` tag will not affect the UI with its placement. The ``logo.gif`` is a 1x1 pixel transparent image served by Kount. This is preset image that is set by Kount within the Data Collection process.
+:: 
+
+    <script type='text/javascript' src='https://DATA_COLLECTOR/collect/sdk?m=123456&s=abcdefg12345abababab123456789012'></script>
+    <img src='https://DATA_COLLECTOR/logo.gif?m=123456&s=abcdefg12345abababab123456789012' />
+
+:information_source:
+   
+  The ``script`` tag will not affect the UI with its placement. The ``logo.gif`` is a 1x1 pixel transparent image served by Kount. This is preset image that is set by Kount within the Data Collection process.
+
+
+
+Integrating with Content Security Policy (CSP)
+===================================================================
+
+Using Kount Access with Content Security Policy is discussed on a separate page of this wiki - `Kount Access and Content Security Policy <Kount-Access-and-Content-Security-Policy.html>`_.
 
 Creating the kaxsdc Class (Responsible for Triggering Data Collection)
 ================================================================================
  
-The Client Collector SDK allows the data collection process to be triggered by any number of events. The default event is page load. These events can be configured by adding the kaxsdc class and ``data-event=‘<event>’`` to an HTML element. The kaxsdc class is configurable using the Client Collector SDK. 
+The Client Collector SDK allows the data collection process to be triggered by any number of events. The default event is page load. These events can be configured by adding the kaxsdc class and ``data-event='<event>'`` to an HTML element. The kaxsdc class is configurable using the Client Collector SDK. 
 
 Namespace & ``ka.ClientSDK`` Object
 =======================================================
@@ -57,33 +70,48 @@ Available methods in the ka.ClientSDK object:
 +--------------------------+----------------------------------------------------------------------------------+
 | Method                   | Description                                                                      |
 +==========================+==================================================================================+
-|**className**	           | Sets the class to be used by ``autoLoadEvents()``                                |
+|**className**	           |Sets the class to be used by ``autoLoadEvents()``                                 |
 +--------------------------+----------------------------------------------------------------------------------+
-|**autoLoadEvents()**	   |Automatically load events to trigger the data collection process. This will wire  |
+|**autoLoadEvents()**      |Automatically load events to trigger the data collection process. This will wire  |
+|                          |                                                                                  |
 |                          |all elements with a class equal to the property className that also have a data-  |
+|                          |                                                                                  |
 |                          |event attribute. After the first event fires and the data collection process      |
+|                          |                                                                                  |
 |                          |begins, no further events will have an effect.                                    |
 +--------------------------+----------------------------------------------------------------------------------+
-|**collectData()**	   |Manually initiates the data collection process instead of waiting for an event to |
+|**collectData()**         |Manually initiates the data collection process instead of waiting for an event to |
+|                          |                                                                                  |
 |                          |be loaded using the `autoLoadEvents()`` method.                                   |
 +--------------------------+----------------------------------------------------------------------------------+
 |**setupCallback(config)** |A client programmable callback system that allows the client to execute custom    |
+|                          |                                                                                  |
 |                          |code at certain points in the data collection process. This method allows a       |
+|                          |                                                                                  |
 |                          |merchant to add a callback function to be called at a specified life-cycle hook.  |
+|                          |                                                                                  |
 |                          |A merchant can pass a JavaScript object containing one or more life cycle hooks   |
+|                          |                                                                                  |
 |                          |with a function pointer or an anonymous function to be executed.                  |
+|                          |                                                                                  |
 |                          |List of hooks (in order of firing):                                               |
-|                          | * ``collect-begin`` - Triggers when the collection                               |
-|                          | * ``collect-end`` - Triggers when the collection ends.                           |
+|                          |                                                                                  |
+|                          |* ``collect-begin`` - Triggers when the collection                                |
+|                          |                                                                                  |
+|                          |* ``collect-end`` - Triggers when the collection ends.                            |
+|                          |                                                                                  |
 |                          |When executed, the callback function is passed a JavaScript object containing the |
+|                          |                                                                                  |
 |                          |following properties:                                                             |
-|                          | * ``MercSessId`` – The merchant provided session.                                |
-|                          | * ``MerchantId`` – The merchant Id.                                              |
+|                          |                                                                                  |
+|                          |* ``MercSessId`` – The merchant provided session.                                 |
+|                          |                                                                                  |
+|                          |* ``MerchantId`` – The merchant Id.                                               |
 +--------------------------+----------------------------------------------------------------------------------+
 
 
 
-Code Example:
+Code-Example:
 ^^^^^^^^^^^^^
 
 This code will fire an alert when the process reaches the ``collect-begin`` hook
@@ -95,7 +123,6 @@ This code will fire an alert when the process reaches the ``collect-begin`` hook
    .
    .
    <body class='kaxsdc' data-event='load'>
-      .
       .
       .
       <script type='text/javascript'>
@@ -137,42 +164,44 @@ Alternative Integration Example
  
 For maximum efficiency in data collection, initiating data collection when the body loads is best. However, if your use-case demands that data collection is initiated by a different event, then this example may be helpful.
 
-```html 
-<html>
-    <body>
-        <button class='mycustomclass' data-event='click'>Click Me!</button>
-      <script type='text/javascript'>
-        var client=new ka.ClientSDK();
-        // notice the use of the custom class
-        client.className = 'mycustomclass';
-        client.autoLoadEvents();
-      </script>
-    </body>
-</html>
-```
+::
+ 
+	<html>
+	    <body>
+		<button class='mycustomclass' data-event='click'>Click Me!</button>
+	      <script type='text/javascript'>
+		var client=new ka.ClientSDK();
+		// notice the use of the custom class
+		client.className = 'mycustomclass';
+		client.autoLoadEvents();
+	      </script>
+	    </body>
+	</html>
+
 
 Another Optional Example to use if you would rather not wait, then just call collectData()
 ====================================================================================================
  
-```html 
-<html>
-    <body>
-      <script type='text/javascript'>
-        var client=new ka.ClientSDK();
-        client.setupCallback(
-            {
-                // fires when collection has finished
-                'collect-end':
-                    function(params) {
-                    location.href = 'http://example.com/loginpage';
-                    }
-            }
-        );
-        client.collectData();
-      </script>
-    </body>
-</html>
-```
+::
+ 
+	<html>
+	    <body>
+	      <script type='text/javascript'>
+		var client=new ka.ClientSDK();
+		client.setupCallback(
+		    {
+		        // fires when collection has finished
+		        'collect-end':
+		            function(params) {
+		            location.href = 'http://example.com/loginpage';
+		            }
+		    }
+		);
+		client.collectData();
+	      </script>
+	    </body>
+	</html>
+
 
 SDK for Native Mobile Apps (iOS and Android)
 =========================================================
@@ -181,5 +210,5 @@ The implementation of the Client Collector is somewhat different for native Mobi
  
 The Data Collector SDK for Android provides a java jar file which can be used to perform Device Collection interaction with Kount for native Android applications.
  
-* For Android implementations see the [[Android SDK Guide|http://kount.github.io/mobile-client/android.html]]
-* For iOS implementation see the [[iOS SDK Guide|http://kount.github.io/mobile-client/ios.html]]
+* For Android implementations see the `Android SDK Guide <http://kount.github.io/mobile-client/android.html>`_
+* For iOS implementation see the `iOS SDK Guide <http://kount.github.io/mobile-client/ios.html>`_

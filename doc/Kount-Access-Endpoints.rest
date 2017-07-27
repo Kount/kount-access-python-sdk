@@ -3,19 +3,24 @@ Kount Access Endpoints
 
 Once device information has been obtained from the user trying to log in, three different request types can be posted to the Kount Access Service:
 
-* [[Device|kount-access-endpoints#device-post-httpskount-access-hostdevice]] - gets the identification and details about the user's device
-* [[Velocity|kount-access-endpoints#velocity-post-httpskount-access-hostvelocity]] - gets the counts of access attempts based on device, IP address, username, password, and account (combination of username and password), cross-referenced with this user's current login attempt, within the last minute and last hour
-* [[Decision|kount-access-endpoints#decision-post-httpskount-access-hostdecision]] - calculates a decision based on thresholds (generated in Kount AWC) using computed velocity details as input. It will also return the same device and velocity information that the velocity request would return.
+* `Device <Kount-Access-Endpoints.html#id1>`_ -  gets the identification and details about the user's device
+* `Velocity <Kount-Access-Endpoints.html#id2>`_ - gets the counts of access attempts based on device, IP address, username, password, and account (combination of username and password), cross-referenced with this user's current login attempt, within the last minute and last hour
+* `Decision <Kount-Access-Endpoints.html#id3>`_ - calculates a decision based on thresholds (generated in Kount AWC) using computed velocity details as input. It will also return the same device and velocity information that the velocity request would return.
 
-.:information_source: Each response is returned in JSON format  
+:information_source: 
+    Each response is returned in JSON format  
 
-.:information_source: The response from each of the request types contains a value named ``response_id`` - this is an identifier given to the particular request, which is used for auditing purposes.
+:information_source: 
+    The response from each of the request types contains a value named ``response_id`` - this is an identifier given to the particular request, which is used for auditing purposes.
 
-.:information_source: The ``version`` parameter, part of the request parameters, is optional.
+:information_source:
+    The ``version`` parameter, part of the request parameters, is optional.
 
 
-Device: ``POST https://<kount-access-host>/device``
+Device: 
 ============================================================
+
+``POST https://<kount-access-host>/device``
 
 ``/device`` Input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,9 +62,10 @@ Device: ``POST https://<kount-access-host>/device``
 
 ---------------------------------------------------------------------------------------------------
 
-Velocity: ``POST https://<kount-access-host>/velocity``
+Velocity: 
 ============================================================
 
+``POST https://<kount-access-host>/velocity``
 
 ``/velocity`` Input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -86,7 +92,7 @@ Velocity: ``POST https://<kount-access-host>/velocity``
 ``/velocity`` Output
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* **device** - [[The device data, documented above|Kount-Access-Endpoints#device-output]].
+* **device** - `The device data, documented above <Kount-Access-Endpoints.html#device-output>`_.
 
 * **velocity** - A data container that includes:
 
@@ -184,8 +190,10 @@ Velocity: ``POST https://<kount-access-host>/velocity``
 
 ------------------------------------------------------------------------------
 
-Decision: ``POST https://<kount-access-host>/decision``
+Decision: 
 =========================================================================
+
+``POST https://<kount-access-host>/decision``
 
 ``/decision`` Input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -229,8 +237,97 @@ Decision: ``POST https://<kount-access-host>/decision``
 
   * **warnings** - List of warnings if the request succeeded, but did not invoke the thresholds.
 
-* **device** - [[The device data, documented above|Kount-Access-Endpoints#device-output]].
+* **device** - `The device data, documented above <Kount-Access-Endpoints.html#device-output>`_
 
-* **velocity** - [[The velocity data, documented above|Kount-Access-Endpoints#velocity-output]].
+* **velocity** - `The velocity data, documented above <Kount-Access-Endpoints.html#velocity-output>`_
 
 * **response_id** - The identifier given to the request. This is for auditing purposes.
+
+
+Sample JSON Response object
+===============================================
+
+As the `/decision` response combines all of the above information, here's a sample JSON returned by the endpoint.
+
+::
+
+    {  
+      "decision":{  
+        "errors":[  
+
+        ],
+        "reply":{  
+          "ruleEvents":{  
+            "decision":"A",
+            "ruleEvents":[  
+
+            ],
+            "total":0
+          }
+        },
+        "warnings":[  
+
+        ]
+      },
+      "device":{  
+        "id":"75012bd5e5b264c4b324f5c95a769541",
+        "ipAddress":"64.128.91.251",
+        "ipGeo":"US",
+        "mobile":1,
+        "proxy":0
+      },
+      "response_id":"bf10cd20cf61286669e87342d029e405",
+      "velocity":{  
+        "account":{  
+          "dlh":1,
+          "dlm":1,
+          "iplh":1,
+          "iplm":1,
+          "plh":1,
+          "plm":1,
+          "ulh":1,
+          "ulm":1
+        },
+        "device":{  
+          "alh":1,
+          "alm":1,
+          "iplh":1,
+          "iplm":1,
+          "plh":1,
+          "plm":1,
+          "ulh":1,
+          "ulm":1
+        },
+        "ip_address":{  
+          "alh":1,
+          "alm":1,
+          "dlh":1,
+          "dlm":1,
+          "plh":1,
+          "plm":1,
+          "ulh":1,
+          "ulm":1
+        },
+        "password":{  
+          "alh":1,
+          "alm":1,
+          "dlh":1,
+          "dlm":1,
+          "iplh":1,
+          "iplm":1,
+          "ulh":1,
+          "ulm":1
+        },
+        "user":{  
+          "alh":1,
+          "alm":1,
+          "dlh":1,
+          "dlm":1,
+          "iplh":1,
+          "iplm":1,
+          "plh":1,
+          "plm":1
+        }
+      }
+    }
+

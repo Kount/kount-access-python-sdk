@@ -1,14 +1,14 @@
 Technical Reference
 ======================================
 
-*  `Data Collector <Data-Collector>`_
+*  `Data Collector <Data-Collector.html>`_
 
-*  `Kount Access Endpoints <Kount-Access-Endpoints>`_
+*  `Kount Access Endpoints <Kount-Access-Endpoints.html>`_
         
-        * `/device <Kount-Access-Endpoints#device-post-httpskount-access-hostdevice>`_
+        * `/device <Kount-Access-Endpoints.html#id1>`_
         
-        * `/velocity <Kount-Access-Endpoints#velocity-post-httpskount-access-hostvelocity>`_
+        * `/velocity <Kount-Access-Endpoints.html#id2>`_
         
-        * `/decision <Kount-Access-Endpoints#decision-post-httpskount-access-hostdecision>`_
+        * `/decision <Kount-Access-Endpoints.html#id3>`_
 
-* `Kount Access Examples <Kount-Access-Examples>`_
+* `Kount Access Examples <Kount-Access-Examples.html>`_

@@ -18,7 +18,8 @@ API keys are required to authenticate to Kount. Each environment requires a sepa
 3. Check the *Kount Access check box* and any other required permissions when creating the API key. (If a key exists with *Access* permissions you may use this instead.)
 4. Click the *Create API Key* button.
   
-[[images/ka-api-key.png]]
+.. figure:: images/ka-api-key.png
+   :alt: ka-api-key
  
 The API key(s) with *Access* permissions must reside on each server that is posting to Kount.
 
@@ -41,7 +42,8 @@ Velocity measures include:
 
 Below is an image of the **Access Thresholds** configuration screen from the AWC.
 
-[[images/ka-thresholds.png]]
+.. figure:: images/ka-thresholds.png
+   :alt: ka-thresholds.png
 
 You can set the velocity threshold per minute, per hour, or both by selecting the check box to the left of the desired element(s). Use the up arrow to the right of the numeral to set a positive number and the down arrow to set a negative number. When you are finished configuring the velocity thresholds, click the **Save** button at the bottom-right of the page.
 
@@ -52,8 +54,8 @@ The two possible decision outcomes for Kount Access are *Approve* and *Decline*.
 **Next steps**: 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Integrate the [[Data Collector]]
+* Integrate the `Data Collector <Data-Collector.html>`_
 
-* Learn more about the various [[endpoints|kount-access-endpoints]] in the Kount Access service.
+* Learn more about the various `endpoints <Kount-Access-Endpoints.html>`_ in the Kount Access service.
 
-* See code [[examples|kount-access-examples]]
+* See code `examples <Kount-Access-Examples.html>`_

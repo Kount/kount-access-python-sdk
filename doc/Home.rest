@@ -1,7 +1,8 @@
 Welcome to the kount-access-python-sdk wiki!
-=====================================================
+====================================================================
 
-[[https://github.com/Kount/Kount.github.io/blob/master/img/logo.png]]
+.. figure:: images/logo.png
+   :alt: kount_logo
 
 
 On these pages we'll discuss setting up and using the Kount Access product.
@@ -12,6 +13,8 @@ This library allows you to connect to the Kount Access API services and get info
 #. An API Key generated for Kount Access
 #. The Session ID used by the Data Collector
 #. Login Information used by the user (login/password)
+
+
 
 
 **Kount Access™** is designed for high-volume login, account creation and affiliate networks, cross-checking individual component with several other components to calculate the velocity of related login attempts, and providing the client with dozens of velocity checks and essential data to help determine the legitimacy of the user and account owners.
@@ -29,32 +32,50 @@ regardless of whether the login is successful or not.
 The Kount Access integration consists of three parts:
 --------------------------------------------------------------
 
-1. Configuring the [[Merchant Authentication and Velocity Thresholds|Kount-Access-Environments,-API-Keys,-and-Thresholds]]
+1. Configuring the `Merchant Authentication and Velocity Thresholds <Kount-Access-EnvironmentsAPIKeysThresholds.html>`_
 
-2. [[Data Collection|data-collector]] process - provides the initial user data that is captured before the user logs in. Depending on the device type that performs the connection, there are three possible means to collect this data - web clients (browsers), iOS applications, and Android applications
+2. `Data Collection <Data-Collector.html>`_ process - provides the initial user data that is captured before the user logs in. Depending on the device type that performs the connection, there are three possible means to collect this data - web clients (browsers), iOS applications, and Android applications
 
-3. [[Access Inquiry service|kount-access-endpoints]] - provides velocity (for device and decision) information about related login attempts during the user login process. The Access Inquiry Service is used directly in the merchant’s website (or authentication service) that handles user login. The Access Inquiry Service should be integrated into the client code so that it is called after the user submits their login, typically where the login form POST is handled. This will be used regardless of whether the login is successful or not.
+3. `Access Inquiry service <Kount-Access-Endpoints.html>`_ - provides velocity (for device and decision) information about related login attempts during the user login process. The Access Inquiry Service is used directly in the merchant’s website (or authentication service) that handles user login. The Access Inquiry Service should be integrated into the client code so that it is called after the user submits their login, typically where the login form POST is handled. This will be used regardless of whether the login is successful or not.
 
- .:information_source: The Access Inquiry Service is designed to be used in conjunction with the Data Collection process. The Data Collection process is passive and provides no information back to a merchant independent of the Access Inquiry Service.
+ :information_source: 
+  
+    The Access Inquiry Service is designed to be used in conjunction with the Data Collection process. The Data Collection process is passive and provides no information back to a merchant independent of the Access Inquiry Service.
 
-On the [[Kount Access Integration]] page, you can find a diagram of the whole process of using Kount Access as well as brief explanations on each step for that process.
-
---------------------------------------------------------------
-
-All information about needed resources can be found on the [[Prerequisites|Kount-Access-Prerequisites]] page, as well as building and referring the SDK in your projects.
+On the `Kount Access Integration <Kount-Access-Integration.html>`_ page, you can find a diagram of the whole process of using Kount Access as well as brief explanations on each step for that process.
 
 --------------------------------------------------------------
 
-Access Inquiry Service API Endpoints reference can be found on the dedicated [[Endpoints|Kount-access-endpoints]] page.
+All information about needed resources can be found on the `Prerequisites <Kount-Access-Prerequisites.html>`_ page, as well as building and referring the SDK in your projects.
 
 --------------------------------------------------------------
 
-On the [[Examples|examples]] page, you can find a few lines of sample code showing how to initialize the SDK, do various requests and analyze their responses.
+Access Inquiry Service API Endpoints reference can be found on the dedicated `Endpoints <Kount-Access-Endpoints.html>`_ page.
 
 --------------------------------------------------------------
 
-[[CSP - Using Kount Access with Content Security Policy|Kount-Access-and-Content-Security-Policy]]
+On the `Examples <Kount-Access-Examples.html>`_ page, you can find a few lines of sample code showing how to initialize the SDK, do various requests and analyze their responses.
 
 --------------------------------------------------------------
 
-.:information_source: This SDK is both Python 2.7.13 and 3.6.x compatible.
+`CSP - Using Kount Access with Content Security Policy <Kount-Access-and-Content-Security-Policy.html>`_
+
+--------------------------------------------------------------
+
+:information_source:
+
+    This SDK is both Python 2.7.13 and 3.6.x compatible.
+
+
+Setting up IDE projects
+-------------------------------------------------
+
+Komodo IDE/Edit, Scite, Visual Studio - have automatic python integration
+
+Who do I talk to?
+--------------------------
+
+#. Repo owner or admin
+
+#. Other community or team contact
+
