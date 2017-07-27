@@ -42,3 +42,20 @@ If you want to use the Kount Access SDK, you need to download and build it local
 
 
 .:information_source: This SDK is both Python 2.7.13 and 3.6.x compatible.
+
+
+
+
+Setting up IDE projects
+-------------------------------------------------
+
+Komodo IDE/Edit, Scite, Visual Studio - have automatic python integration
+
+Who do I talk to?
+--------------------------
+
+#. Repo owner or admin
+
+#. Other community or team contact
+
+

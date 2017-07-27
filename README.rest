@@ -54,3 +54,20 @@ How it works:
 ========================
 
 https://github.com/Kount/kount-access-python-sdk/wiki/Kount-Access-Examples
+
+
+
+
+Setting up IDE projects
+-------------------------------------------------
+
+Komodo IDE/Edit, Scite, Visual Studio - have automatic python integration
+
+Who do I talk to?
+--------------------------
+
+#. Repo owner or admin
+
+#. Other community or team contact
+
+
