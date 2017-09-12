@@ -15,14 +15,14 @@ __status__ = "Development"
 import logging
 import unittest
 import urllib
-
-try:
+import sys
+if sys.version_info[0] == 2:
     from mock import patch, MagicMock, Mock, call
     from urllib2 import HTTPError
     import urllib2
     py27 = True
-except ImportError:
-    from unittest.mock import patch, MagicMock, call
+else:
+    from unittest.mock import patch, MagicMock, Mock, call
     from urllib.error import HTTPError
     py27 = False
 import six

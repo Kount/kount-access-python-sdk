@@ -17,10 +17,11 @@ __status__ = "Development"
 import base64
 import hashlib
 import urllib
-try:
+import sys
+if sys.version_info[0] == 2:
     import urllib2 as urllibr
     py27 = True
-except ImportError:
+else:
     py27 = False
     import urllib.request as urllibr
 import json
@@ -74,6 +75,8 @@ class AccessSDK:
         @param response: JSON representation of the response.
         @return: Dictionary representation of the response.
         """
+        if not py27:
+            response = response.decode('utf-8')
         logger.debug(json.loads(response))
         return json.loads(response)
 
@@ -95,7 +98,7 @@ class AccessSDK:
         """
         m = str(self.merchantId).encode('utf-8')
         a = base64.standard_b64encode(m +  ":".encode('utf-8') + self.apiKey.encode('utf-8'))
-        return {'Authorization': ('Basic ' + a.decode('utf-8'))}
+        return {'Authorization': ('Basic %s' % a.decode('utf-8'))}
 
     def get_decision(self, session, username, password, additional_params=None):
         """
@@ -120,7 +123,7 @@ class AccessSDK:
         params = {'v': self.version, 's': session}
         if all(i for i in [username, password]):
             params['uh'] = self._get_hash(username)
-            params['ph'] = self._get_hash(password),
+            params['ph'] = self._get_hash(password)
             params['ah'] = self._get_hash("%s:%s"%(username, password))
         return params
 

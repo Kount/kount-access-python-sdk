@@ -34,7 +34,8 @@ class TestAccessPrepareParams(unittest.TestCase):
         lst = ['', None, test]
         unique = list(set([x for x in itertools.product(lst, repeat=2)]))
         expected_list = [{'s': session_id, 'v': version},
-                         {'v': version, 'ph': (th,),
+                         #~ {'v': version, 'ph': (th,),
+                         {'v': version, 'ph': th,
                           's': session_id, 'uh': th,
                           'ah': access._get_hash("%s:%s"%(test, test)),}]
         for arg in unique:
