@@ -121,7 +121,9 @@ class SequenceMeta(type):
 
 class TestSequence(six.with_metaclass(SequenceMeta, unittest.TestCase)):
     "TestSequence - generate tests for each method in AccessSDK"
-    __metaclass__ = SequenceMeta
+    if py27: pass
+    else:
+        __metaclass__ = SequenceMeta
 
 
 class TestAPIAccessMock(unittest.TestCase):
