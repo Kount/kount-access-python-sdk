@@ -269,16 +269,13 @@ class TestAPIAccessMock(unittest.TestCase):
                 with self.assertRaises(error1):
                     getattr(thing, target)(*params)
                 arg_list = [session_id, version, urllibr, uh, ah, ph]
-                if py27:
-                    self.assertEqual(mock_method.call_args, params_call)
+                if get_method:
+                    arg_text = str(mock_method.call_args[0])
+                    for a in arg_list[:3]:
+                        self.assertIn(a, arg_text)
                 else:
-                    if get_method:
-                        arg_text = str(mock_method.call_args[0])
-                        for a in arg_list[:3]:
-                            self.assertIn(a, arg_text)
-                    else:
-                        for a in arg_list:
-                            self.assertIn(a, arg_text)
+                    for a in arg_list:
+                        self.assertIn(a, arg_text)
 
 
 if __name__ == "__main__":
