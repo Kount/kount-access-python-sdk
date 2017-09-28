@@ -130,8 +130,11 @@ class TestAPIAccess(unittest.TestCase):
                                 u'proxy': 0, u'ipAddress': u'188.254.215.212',
                                 u'id': u'1895c3befcff48a29ccd7da7d163f7f7'},
                     u'response_id': u'3c67bcc418c14d6fbb3bb4da2db680c9'}
-        dev = self.access_sdk.get_device(self.session_id)
-        self.assertEqual(dev.keys(), expected.keys())
+        if apiKey == 'PUT_YOUR_API_KEY_HERE' or merchantId == 0:
+            self.assertRaises(HTTPError, self.access_sdk.get_device, self.session_id)
+        else:
+            dev = self.access_sdk.get_device(self.session_id)
+            self.assertEqual(dev.keys(), expected.keys())
 
     def test_api_get_decision(self):
         "get_decision"
@@ -191,8 +194,11 @@ class TestAPIAccess(unittest.TestCase):
                                             u'iplm': 1,
                                             u'plh': 1,
                                             u'plm': 1}}}
-        dec = self.access_sdk.get_decision(*self.arg)
-        self.assertEqual(dec.keys(), expected.keys())
+        if apiKey == 'PUT_YOUR_API_KEY_HERE' or merchantId == 0:
+            self.assertRaises(HTTPError, self.access_sdk.get_decision, *self.arg)
+        else:
+            dec = self.access_sdk.get_decision(*self.arg)
+            self.assertEqual(dec.keys(), expected.keys())
 
     def test_api_get_velocity(self):
         "get_velocity"
@@ -247,8 +253,11 @@ class TestAPIAccess(unittest.TestCase):
                                             u'iplm': 1,
                                             u'plh': 1,
                                             u'plm': 1}}}
-        vel = self.access_sdk.get_velocity(*self.arg)
-        self.assertEqual(vel.keys(), expected.keys())
+        if apiKey == 'PUT_YOUR_API_KEY_HERE' or merchantId == 0:
+            self.assertRaises(HTTPError, self.access_sdk.get_velocity, *self.arg)
+        else:
+            vel = self.access_sdk.get_velocity(*self.arg)
+            self.assertEqual(vel.keys(), expected.keys())
 
     def test_api_requests_empty_credentials(self):
         "empty credentials - ValueError: Invalid value ''"
@@ -281,5 +290,5 @@ class TestAPIAccess(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main(
         verbosity=2,
-        #~ defaultTest="TestAPIAccess.test_api_get_decision""
+        #~ defaultTest="TestAPIAccess.test_api_get_decision"
     )
