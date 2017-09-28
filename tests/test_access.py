@@ -36,10 +36,10 @@ All parameters are provided by Kount and configured to utilize specific threshol
 """
 
 #~ integration tests merchant ID
-merchantId = 999666
+merchantId = 0
 
 #~ API Key for Kount Access authorization
-apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI5OTk2NjYiLCJhdWQiOiJLb3VudC4xIiwiaWF0IjoxNDk5ODcwNDgwLCJzY3AiOnsia2EiOnRydWUsImtjIjp0cnVlLCJhcGkiOnRydWUsInJpcyI6dHJ1ZX19.yFan6moxBonnG8Vk9C_qRpF-eTF00_MRBwgqMdNdy8U'
+apiKey = 'PUT_YOUR_API_KEY_HERE'
 
 #~ Kount Access service host for integration tests
 serverName = 'api-sandbox01.kountaccess.com'
