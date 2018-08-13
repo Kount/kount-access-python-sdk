@@ -16,7 +16,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rest'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -25,7 +25,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='2.1.1',
+    version='4.0.0',
 
     description='Kount Python Access SDK',
     long_description=long_description,
@@ -55,9 +55,9 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
 
         # Pick your license as you wish (should match "license" above)
-        #~ 'License :: OSI Approved :: Kount License',
+        # 'License :: OSI Approved :: Kount License',
         'License :: Other/Proprietary License',
-        #~ 'License :: OSI Approved :: MIT License',
+        # 'License :: OSI Approved :: MIT License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
@@ -71,7 +71,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    #~ packages=find_packages(exclude=['kount', 'util','resources', 'tests']),
+    # packages=find_packages(exclude=['kount', 'util','resources', 'tests']),
     packages=find_packages(),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
@@ -93,6 +93,6 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        #~ 'rest': ['test_access_mock.py', 'test_access.py', 'test_params.py'],
+        # 'rest': ['test_access_mock.py', 'test_access.py', 'test_params.py'],
     },
 )

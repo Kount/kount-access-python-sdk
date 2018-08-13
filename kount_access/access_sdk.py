@@ -9,7 +9,7 @@ access_sdk module Contains functions for a client to call Kount Access's API Ser
 
 from __future__ import absolute_import, unicode_literals, division, print_function
 __author__ = "Kount Access SDK"
-__version__ = "2.1.1"
+__version__ = "4.0.0"
 __maintainer__ = "Kount Access SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
@@ -18,14 +18,16 @@ import base64
 import hashlib
 import urllib
 import sys
+import json
+import logging
+
 if sys.version_info[0] == 2:
     import urllib2 as urllibr
     py27 = True
 else:
     py27 = False
     import urllib.request as urllibr
-import json
-import logging
+
 logging.basicConfig()
 
 logger = logging.getLogger('kount.access')
@@ -36,26 +38,30 @@ class AccessSDK:
     Class that wraps access to Kount Access's API via python interface.
     """
 
-    # This is the default service version for this SDK - 0210.
-    __version__ = '0210'
+    # This is the default service version for this SDK - 0400.
+    __version__ = '0400'
 
-    def __init__(self, host, merchantId, apiKey, version=None):
+    DEVICE_TRUST_BY_DEVICE = "/api/devicetrustbydevice"
+    TRUSTED_STATES = ["trusted", "not_trusted", "banned"]
+
+    def __init__(self, host, merchant_id, api_key, version=None):
         """
         Constructor.
         @param version:
         @param host Kount server to connect.
-        @param merchantId Merchant's id.
-        @param apiKey Merchant's api key.
+        @param merchant_id Merchant's id.
+        @param api_key Merchant's api key.
         @param version Optional version string to override default.
         """
         self.host = host
-        self.merchantId = merchantId
-        self.apiKey = apiKey
+        self.merchantId = merchant_id
+        self.apiKey = api_key
         self.version = self.__version__
         if version is not None:
             self.version = version
 
-    def __add_param(self, request, additional_params):
+    @staticmethod
+    def __add_param(request, additional_params):
         """
         Add parameters to a request before making the call.
         get_device_request().
@@ -69,7 +75,8 @@ class AccessSDK:
         else:
             raise Exception()
 
-    def __format_response(self, response):
+    @staticmethod
+    def __format_response(response):
         """
         Convert the JSON response to a native dictionary.
         @param response: JSON representation of the response.
@@ -77,8 +84,14 @@ class AccessSDK:
         """
         if not py27:
             response = response.decode('utf-8')
-        logger.debug(json.loads(response))
-        return json.loads(response)
+
+        json_response = None
+        if response:
+            json_response = json.loads(response)
+
+        logger.debug(json_response)
+
+        return json_response
 
     def get_velocity(self, session, username, password, additional_params=None):
         """
@@ -97,7 +110,7 @@ class AccessSDK:
         @return Encoded authorization value.
         """
         m = str(self.merchantId).encode('utf-8')
-        a = base64.standard_b64encode(m +  ":".encode('utf-8') + self.apiKey.encode('utf-8'))
+        a = base64.standard_b64encode(m + ":".encode('utf-8') + self.apiKey.encode('utf-8'))
         return {'Authorization': ('Basic %s' % a.decode('utf-8'))}
 
     def get_decision(self, session, username, password, additional_params=None):
@@ -124,7 +137,7 @@ class AccessSDK:
         if all(i for i in [username, password]):
             params['uh'] = self._get_hash(username)
             params['ph'] = self._get_hash(password)
-            params['ah'] = self._get_hash("%s:%s"%(username, password))
+            params['ah'] = self._get_hash("%s:%s" % (username, password))
         return params
 
     def __get_data_using_velocity_params(self, endpoint, session, username, password, additional_params=None):
@@ -137,6 +150,8 @@ class AccessSDK:
         @param additional_params: Dictionary of key value pairs representing param name and param value.
         @return response from api.
         """
+        self._validate_session(session)
+
         params = self._prepare_params(session, username, password)
         request = {
             'url': 'https://{}/api/{}'.format(self.host, endpoint),
@@ -164,16 +179,16 @@ class AccessSDK:
             self.__add_param(request, additional_params)
         return self.__request_get(request['url'], request['params'])
 
-    def _get_hash(self, value):
+    @staticmethod
+    def _get_hash(value):
         """
         Abstracted in case the hashing process should ever change.
         @param value: Value to hash.
         @return Hashed value.
         """
-        if value:
-            return hashlib.sha256(str(value).encode('utf-8')).hexdigest()
-        else:
-            raise ValueError("Invalid value '%s'."% value)
+        if not value:
+            raise ValueError("Invalid value '%s'." % value)
+        return hashlib.sha256(str(value).encode('utf-8')).hexdigest()
 
     def __request(self, url, values=None):
         """
@@ -219,3 +234,45 @@ class AccessSDK:
             return self.__request(url, urllib.urlencode(values))
         else:
             return self.__request(url, urllib.parse.urlencode(values))
+
+    def get_devicetrustbydevice(self, device_id, uniq, trusted_state):
+        """
+        Get device trust by device
+        :param device_id is a issue for the device
+        :param uniq is a customer identifier
+        :param trusted_state is trusted state to set to (not_trusted, trusted, banned)
+        :return: request result
+        """
+        self._validate_param(device_id, "invalid device id: ")
+        self._validate_param(uniq, "invalid uniq: ")
+        self._validate_state(trusted_state)
+
+        url = self._build_url(self.DEVICE_TRUST_BY_DEVICE)
+        data = {
+            'v': self.version,
+            'd': device_id,
+            'uniq': uniq,
+            'ts': trusted_state
+        }
+
+        return self.__request_post(url, data)
+
+    def _build_url(self, endpoint):
+        if not self.host:
+            raise ValueError("invalid host: %s" % self.host)
+        return 'https://' + self.host + endpoint
+
+    @staticmethod
+    def _validate_state(state):
+        if state not in ['not_trusted', 'trusted', 'banned']:
+            raise ValueError("invalid state: %s" % state)
+
+    @staticmethod
+    def _validate_session(session):
+        if not session or len(session) != 32:
+            raise ValueError("invalid session: %s" % session)
+
+    @staticmethod
+    def _validate_param(value, err_string):
+        if not value:
+            raise ValueError(err_string + " %s" % value)
