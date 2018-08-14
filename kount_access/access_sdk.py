@@ -28,7 +28,7 @@ else:
     py27 = False
     import urllib.request as urllibr
 
-logging.basicConfig()
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 logger = logging.getLogger('kount.access')
 
@@ -54,11 +54,14 @@ class AccessSDK:
         @param version Optional version string to override default.
         """
         self.host = host
-        self.merchantId = merchant_id
-        self.apiKey = api_key
+        self.merchant_id = merchant_id
+        self.api_key = api_key
+        self.authorization_header = self.__init_authorization_header()
         self.version = self.__version__
         if version is not None:
             self.version = version
+        logger.info("Init AccessSDK -> merchantID: %s | APIKey: %s" %
+                    (self.merchant_id, self.api_key[:20] + "..."))
 
     @staticmethod
     def __add_param(request, additional_params):
@@ -104,13 +107,13 @@ class AccessSDK:
         """
         return self.__get_data_using_velocity_params('velocity', session, username, password, additional_params)
 
-    def __get_authorization_header(self):
+    def __init_authorization_header(self):
         """
         Helper for building authorization header
         @return Encoded authorization value.
         """
-        m = str(self.merchantId).encode('utf-8')
-        a = base64.standard_b64encode(m + ":".encode('utf-8') + self.apiKey.encode('utf-8'))
+        m = str(self.merchant_id).encode('utf-8')
+        a = base64.standard_b64encode(m + ":".encode('utf-8') + self.api_key.encode('utf-8'))
         return {'Authorization': ('Basic %s' % a.decode('utf-8'))}
 
     def get_decision(self, session, username, password, additional_params=None):
@@ -159,6 +162,10 @@ class AccessSDK:
         }
         if additional_params is not None:
             self.__add_param(request, additional_params)
+
+        logger.info("get_%s -> v: %s, s: %s, username: %s, password: %s" %
+                    (endpoint, self.version, session, params['uh'], params['ph']))
+
         return self.__request_post(request['url'], request['params'])
 
     def get_device(self, session, additional_params=None):
@@ -177,6 +184,9 @@ class AccessSDK:
         }
         if additional_params is not None:
             self.__add_param(request, additional_params)
+
+        logger.info("get_device -> v: %s, s: %s" % (self.version, session))
+
         return self.__request_get(request['url'], request['params'])
 
     @staticmethod
@@ -199,7 +209,7 @@ class AccessSDK:
         """
         if values:
             values = values.encode('utf-8')
-        request = urllibr.Request(url, values, self.__get_authorization_header())
+        request = urllibr.Request(url, values, self.authorization_header)
         try:
             response = urllibr.urlopen(request)
         except urllibr.URLError as e:
@@ -254,6 +264,9 @@ class AccessSDK:
             'uniq': uniq,
             'ts': trusted_state
         }
+
+        logger.info("get_devicetrustbydevice -> v: %s, d: %s, uniq: %s, trusted state: %s" %
+                    (self.version, device_id, uniq, trusted_state))
 
         return self.__request_post(url, data)
 
