@@ -43,6 +43,8 @@ class AccessSDK:
 
     DEVICE_TRUST_BY_SESSION = "/api/devicetrustbysession"
     DEVICE_TRUST_BY_DEVICE = "/api/devicetrustbydevice"
+    GET_UNIQUES_ENDPOINT = "/api/getuniques"
+    GET_DEVICES_ENDPOINT = "/api/getdevices"
     TRUSTED_STATES = ["trusted", "not_trusted", "banned"]
 
     def __init__(self, host, merchant_id, api_key, version=None):
@@ -295,6 +297,42 @@ class AccessSDK:
                     (self.version, session, uniq, trusted_state))
 
         return self.__request_post(url, data)
+
+    def get_uniques(self, device_id):
+        """
+        Get uniques for a UNIQ
+        :param device_id is a issue for the device
+        :return: request result
+        """
+        self._validate_param(device_id, "invalid device id: ")
+
+        url = self._build_url(self.GET_UNIQUES_ENDPOINT)
+        data = {
+            'v': self.version,
+            'd': device_id
+        }
+
+        logger.info("get_uniques -> v: %s, d: %s" % (self.version, device_id))
+
+        return self.__request_get(url, data)
+
+    def get_devices(self, uniq):
+        """
+        Get devices
+        :param uniq is a customer identifier
+        :return: request result
+        """
+        self._validate_param(uniq, "invalid uniq: ")
+
+        url = self._build_url(self.GET_DEVICES_ENDPOINT)
+        data = {
+            'v': self.version,
+            'uniq': uniq
+        }
+
+        logger.info("get_devices -> v: %s, uniq: %s" % (self.version, uniq))
+
+        return self.__request_get(url, data)
 
     def _build_url(self, endpoint):
         if not self.host:
