@@ -45,7 +45,16 @@ class AccessSDK:
     DEVICE_TRUST_BY_DEVICE = "/api/devicetrustbydevice"
     GET_UNIQUES_ENDPOINT = "/api/getuniques"
     GET_DEVICES_ENDPOINT = "/api/getdevices"
+    INFO_ENDPOINT = "/api/info"
     TRUSTED_STATES = ["trusted", "not_trusted", "banned"]
+
+    DATA_SET = {
+        "info": 1,
+        "velocity": 2,
+        "decision": 4,
+        "trusted": 8,
+        "behaviosec": 16
+    }
 
     def __init__(self, host, merchant_id, api_key, version=None):
         """
@@ -140,11 +149,7 @@ class AccessSDK:
         @return dict.
         """
         params = {'v': self.version, 's': session}
-        if all(i for i in [username, password]):
-            params['uh'] = self._get_hash(username)
-            params['ph'] = self._get_hash(password)
-            params['ah'] = self._get_hash("%s:%s" % (username, password))
-        return params
+        return self._prepare_hashes(params, username, password)
 
     def __get_data_using_velocity_params(self, endpoint, session, username, password, additional_params=None):
         """
@@ -333,6 +338,87 @@ class AccessSDK:
         logger.info("get_devices -> v: %s, uniq: %s" % (self.version, uniq))
 
         return self.__request_get(url, data)
+
+    def get_info(self, session, info=None, velocity=None,
+                 decision=None, trusted=None, behaviosec=None,
+                 uniq=None, username=None, password=None
+                 ):
+        """
+        Get Info
+        :param info should be true if we want device info in result
+        :param velocity should be true if we want velocity in result
+        :param decision should be true if we want decision in result
+        :param trusted should be true if we want trusted in result
+        :param behaviosec should be true if we want behaviosec info in result
+        :param uniq is a customer identifier
+        :param session that has already had a device collection made
+        :param password
+        :param username
+        :return: request result
+        """
+        self._validate_session(session)
+
+        if not info and not velocity and not decision and not trusted and not behaviosec:
+            err_msg = "At least one of the following parameters - " \
+                      "info, velocity, decision, trusted, behaviosec should be true"
+            raise ValueError(err_msg)
+
+        data = {'v': self.version, 's': session,
+                'i': self._calc_data_set_value(info, velocity, decision, trusted, behaviosec)}
+
+        if trusted or behaviosec:
+            self._validate_param(uniq, "invalid uniq: ")
+            data['uniq'] = uniq
+
+        if behaviosec:
+            data['m'] = self.merchant_id
+            data['timing'] = "dasda"
+
+        if velocity or decision:
+            self._validate_param(username, "invalid username: ")
+            self._validate_param(password, "invalid password: ")
+            data = self._prepare_hashes(data, username, password)
+
+        url = self._build_url(self.INFO_ENDPOINT)
+
+        return self.__request_post(url, data)
+
+    def _calc_data_set_value(self, info, velocity, decision, trusted, behaviosec):
+        """
+        Calculate i
+        :param info:
+        :param velocity:
+        :param decision:
+        :param trusted:
+        :param behaviosec:
+        :return: i
+        """
+        i = 0
+        if info:
+            i += self.DATA_SET['info']
+        if velocity:
+            i += self.DATA_SET['velocity']
+        if decision:
+            i += self.DATA_SET['decision']
+        if trusted:
+            i += self.DATA_SET['trusted']
+        if behaviosec:
+            i += self.DATA_SET['behaviosec']
+        return i
+
+    def _prepare_hashes(self, params, username, password):
+        """
+        Helper, add to params hashed username and password
+        :param params:
+        :param username:
+        :param password:
+        :return: modified params
+        """
+        if all(i for i in [username, password]):
+            params['uh'] = self._get_hash(username)
+            params['ph'] = self._get_hash(password)
+            params['ah'] = self._get_hash("%s:%s" % (username, password))
+        return params
 
     def _build_url(self, endpoint):
         if not self.host:

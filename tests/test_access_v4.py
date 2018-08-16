@@ -54,13 +54,10 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID, self.UNIQ, trusted_state)
 
         self.access_sdk.version = self.version
-
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.FAKE_DEVICE_ID,
                           self.UNIQ, trusted_state)
-
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID,
                           self.FAKE_UNIQ, trusted_state)
-
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID,
                           self.UNIQ, self.FAKE_TRUSTED_STATE)
 
@@ -78,13 +75,10 @@ class TestBasicConnectivity(unittest.TestCase):
                           self.UNIQ, trusted_state)
 
         self.access_sdk.version = self.version
-
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession,
                           self.FAKE_SESSION, self.UNIQ, trusted_state)
-
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession,
                           self.SESSION_ID, self.FAKE_UNIQ, trusted_state)
-
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession, self.SESSION_ID,
                           self.UNIQ, self.FAKE_TRUSTED_STATE)
 
@@ -145,6 +139,233 @@ class TestBasicConnectivity(unittest.TestCase):
             ]
         }
         result = self.access_sdk.get_devices(self.UNIQ)
+        self.assertEqual(result.keys(), expected.keys())
+
+    def test_api_get_info(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.access_sdk.version = self.FAKE_VERSION
+        self.assertRaises(HTTPError, self.access_sdk.get_info, self.SESSION_ID, info=True)
+
+        self.access_sdk.version = self.version
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, uniq=self.FAKE_UNIQ,
+                          info=True, trusted=True)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, uniq=self.FAKE_UNIQ,
+                          info=True, trusted=True)
+
+    def test_api_get_info_device_info(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        expected = {
+            "device": {
+                "id": "9fbc4b5f963a4a109fa0aebf3dc677c7",
+                "ipAddress": "93.123.21.68",
+                "ipGeo": "BG",
+                "mobile": 0,
+                "proxy": 0,
+                "tor": 0,
+                "region": "61",
+                "country": "BG",
+                "geoLat": 43.2167,
+                "geoLong": 27.9167
+            },
+            "response_id": "4f04917e14874b708511b46320e757ca"
+        }
+        result = self.access_sdk.get_info(self.SESSION_ID, info=True)
+        self.assertEqual(result.keys(), expected.keys())
+
+    def test_api_get_info_velocity(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, velocity=True)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, velocity=True, username=self.USERNAME)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, velocity=True, username=self.PASSWORD)
+
+        expected = {
+            "response_id": "c1fc61e995134c368c3f43354e2c6261",
+            "velocity": {
+                "account": {
+                    "dlh": 1,
+                    "dlm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "plh": 1,
+                    "plm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "device": {
+                    "alh": 1,
+                    "alm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "plh": 1,
+                    "plm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "ip_address": {
+                    "alh": 1,
+                    "alm": 1,
+                    "dlh": 1,
+                    "dlm": 1,
+                    "plh": 1,
+                    "plm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "password": {
+                    "alh": 1,
+                    "alm": 1,
+                    "dlh": 1,
+                    "dlm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "user": {
+                    "alh": 1,
+                    "alm": 1,
+                    "dlh": 1,
+                    "dlm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "plh": 1,
+                    "plm": 1
+                }
+            }
+        }
+        result = self.access_sdk.get_info(self.SESSION_ID, velocity=True,
+                                          username=self.USERNAME, password=self.PASSWORD)
+        self.assertEqual(result.keys(), expected.keys())
+
+    def test_api_get_info_device_info_velocity(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, info=True, velocity=True)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, info=True,
+                          velocity=True, username=self.USERNAME)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, info=True,
+                          velocity=True, username=self.PASSWORD)
+
+        expected = {
+            "device": {
+                "id": "9fbc4b5f963a4a109fa0aebf3dc677c7",
+                "ipAddress": "93.123.21.68",
+                "ipGeo": "BG",
+                "mobile": 0,
+                "proxy": 0,
+                "tor": 0,
+                "region": "61",
+                "country": "BG",
+                "geoLat": 43.2167,
+                "geoLong": 27.9167
+            },
+            "response_id": "81fb344540cb4871ac34a5ec64689b0c",
+            "velocity": {
+                "account": {
+                    "dlh": 1,
+                    "dlm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "plh": 1,
+                    "plm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "device": {
+                    "alh": 1,
+                    "alm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "plh": 1,
+                    "plm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "ip_address": {
+                    "alh": 1,
+                    "alm": 1,
+                    "dlh": 1,
+                    "dlm": 1,
+                    "plh": 1,
+                    "plm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "password": {
+                    "alh": 1,
+                    "alm": 1,
+                    "dlh": 1,
+                    "dlm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "ulh": 1,
+                    "ulm": 1
+                },
+                "user": {
+                    "alh": 1,
+                    "alm": 1,
+                    "dlh": 1,
+                    "dlm": 1,
+                    "iplh": 1,
+                    "iplm": 1,
+                    "plh": 1,
+                    "plm": 1
+                }
+            }
+        }
+
+        result = self.access_sdk.get_info(self.SESSION_ID, info=True, velocity=True,
+                                          username=self.USERNAME, password=self.PASSWORD)
+        self.assertEqual(result.keys(), expected.keys())
+
+    def test_api_get_info_decision(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, decision=True)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, decision=True, username=self.USERNAME)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, decision=True, username=self.PASSWORD)
+
+        expected = {
+            "decision": {
+                "errors": [],
+                "warnings": [],
+                "reply": {
+                    "ruleEvents": {
+                        "decision": "A",
+                        "total": 0,
+                        "ruleEvents": None
+                    }
+                }
+            },
+            "response_id": "fc9ba2b36a214477a105afb772e0da00"
+        }
+
+        result = self.access_sdk.get_info(self.SESSION_ID, decision=True,
+                                          username=self.USERNAME, password=self.PASSWORD)
+        self.assertEqual(result.keys(), expected.keys())
+
+    def test_api_get_info_trusted(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, trusted=True)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, trusted=True, username=self.USERNAME)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, trusted=True, password=self.PASSWORD)
+        self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID,
+                          trusted=True, username=self.USERNAME, password=self.PASSWORD)
+
+        expected = {
+            "response_id": "6ec2006514954c5793bdabbdd5fbdd95",
+            "trusted": {
+                "state": "trusted"
+            }
+        }
+
+        result = self.access_sdk.get_info(self.SESSION_ID, trusted=True, uniq=self.UNIQ,
+                                          username=self.USERNAME, password=self.PASSWORD)
         self.assertEqual(result.keys(), expected.keys())
 
 
