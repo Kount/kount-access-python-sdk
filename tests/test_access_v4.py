@@ -34,30 +34,62 @@ class TestBasicConnectivity(unittest.TestCase):
     api_key = None
     version = '0400'
 
+    SESSION_ID = "36C5024391374839B0D609785307C990"
+    FAKE_SESSION = None
+    FAKE_VERSION = '4.0.0'
+    FAKE_UNIQ = ""
+    FAKE_TRUSTED_STATE = ""
+    FAKE_DEVICE_ID = ""
+    USERNAME = "test@kount.net"
+    PASSWORD = "password"
+    UNIQ = "abc111@abc.com"
+    DEVICE_ID = "9fbc4b5f963a4a109fa0aebf3dc677c7"
+
     def test_api_get_devicetrustbydevice(self):
-        device_id = "9fbc4b5f963a4a109fa0aebf3dc677c7"
-        uniq = "abc111@abc.com"
         trusted_state = "trusted"
 
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
 
-        fake_version = '4.0.0'
-        self.access_sdk.version = fake_version
-        self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbydevice, device_id, uniq, trusted_state)
+        self.access_sdk.version = self.FAKE_VERSION
+        self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID, self.UNIQ, trusted_state)
 
         self.access_sdk.version = self.version
 
-        fake_device_id = None
-        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, fake_device_id, uniq, trusted_state)
+        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.FAKE_DEVICE_ID,
+                          self.UNIQ, trusted_state)
 
-        fake_uniq = ""
-        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, device_id, fake_uniq, trusted_state)
+        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID,
+                          self.FAKE_UNIQ, trusted_state)
 
-        fake_trusted_state = ""
-        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, device_id, uniq, fake_trusted_state)
+        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID,
+                          self.UNIQ, self.FAKE_TRUSTED_STATE)
 
         expected = None
-        result = self.access_sdk.get_devicetrustbydevice(device_id, uniq, trusted_state)
+        result = self.access_sdk.get_devicetrustbydevice(self.DEVICE_ID, self.UNIQ, trusted_state)
+        self.assertEqual(result, expected)
+
+    def test_api_get_devicetrustbysession(self):
+        trusted_state = "trusted"
+
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.access_sdk.version = self.FAKE_VERSION
+        self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbysession, self.SESSION_ID,
+                          self.UNIQ, trusted_state)
+
+        self.access_sdk.version = self.version
+
+        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession,
+                          self.FAKE_SESSION, self.UNIQ, trusted_state)
+
+        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession,
+                          self.SESSION_ID, self.FAKE_UNIQ, trusted_state)
+
+        self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession, self.SESSION_ID,
+                          self.UNIQ, self.FAKE_TRUSTED_STATE)
+
+        expected = None
+        result = self.access_sdk.get_devicetrustbysession(self.SESSION_ID, self.UNIQ, trusted_state)
         self.assertEqual(result, expected)
 
 

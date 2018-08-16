@@ -41,6 +41,7 @@ class AccessSDK:
     # This is the default service version for this SDK - 0400.
     __version__ = '0400'
 
+    DEVICE_TRUST_BY_SESSION = "/api/devicetrustbysession"
     DEVICE_TRUST_BY_DEVICE = "/api/devicetrustbydevice"
     TRUSTED_STATES = ["trusted", "not_trusted", "banned"]
 
@@ -267,6 +268,28 @@ class AccessSDK:
 
         logger.info("get_devicetrustbydevice -> v: %s, d: %s, uniq: %s, trusted state: %s" %
                     (self.version, device_id, uniq, trusted_state))
+
+        return self.__request_post(url, data)
+
+    def get_devicetrustbysession(self, session, uniq, trusted_state):
+        """
+        Get device trust by session
+        :param session that has already had a device collection made
+        :param uniq is a customer identifier
+        :param trusted_state is trusted state to set to (not_trusted, trusted, banned)
+        :return: request result
+        """
+        self._validate_session(session)
+        self._validate_param(uniq, "invalid uniq: ")
+        self._validate_state(trusted_state)
+
+        url = self._build_url(self.DEVICE_TRUST_BY_SESSION)
+        data = {
+            'v': self.version,
+            's': session,
+            'uniq': uniq,
+            'ts': trusted_state
+        }
 
         return self.__request_post(url, data)
 
