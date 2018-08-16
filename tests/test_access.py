@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # This file is part of the Kount access python sdk project
@@ -6,28 +5,24 @@
 # Copyright (C) 2017 Kount Inc. All Rights Reserved.
 
 from __future__ import absolute_import, unicode_literals, division, print_function
+
 __author__ = "Kount Access SDK"
-__version__ = "2.1.1"
+__version__ = "4.0.0"
 __maintainer__ = "Kount Access SDK"
 __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
 
 import unittest
-import base64
-import hashlib
-import urllib
 import requests
 import sys
 import uuid
+import logging
+from kount_access.access_sdk import AccessSDK
 
 if sys.version_info[0] == 2:
-    import urllib2
     from urllib2 import HTTPError
 else:
     from urllib.error import HTTPError
-import json
-import logging
-from kount_access.access_sdk import AccessSDK
 
 """
 Kount Access integration tests
@@ -35,34 +30,35 @@ Kount Access integration tests
 All parameters are provided by Kount and configured to utilize specific thresholds.
 """
 
-#~ integration tests merchant ID
+# integration tests merchant ID
 merchantId = 0
 
-#~ API Key for Kount Access authorization
+# API Key for Kount Access authorization
 apiKey = 'PUT_YOUR_API_KEY_HERE'
 
-#~ Kount Access service host for integration tests
+# Kount Access service host for integration tests
 serverName = 'api-sandbox01.kountaccess.com'
 dataCollector = 'https://sandbox01.kaxsdc.com/logo.gif'
 
-#~ Kount Access service version to use
-version = '0210'
+# Kount Access service version to use
+version = '0400'
 
-#~ username and password request parameter values
+# username and password request parameter values
 user = 'test@kount.com'
 pswd = 'password'
 
 logger = logging.getLogger('kount.test')
 
-#~ Access SDK methods 
+# Access SDK methods
 methods_list = [func for func in dir(AccessSDK) if callable(getattr(AccessSDK, func)) and not func.startswith("_")]
 
+
 def generate_unique_id():
-    "unique session id"
+    """unique session id"""
     return str(uuid.uuid4()).replace('-', '').upper()
 
 
-#~ session ID parameter value
+# session ID parameter value
 session_id_wrong = generate_unique_id()
 
 
@@ -92,10 +88,10 @@ class TestAPIAccess(unittest.TestCase):
         self.session_id = generate_unique_id()[:32]
         self.arg = [self.session_id, user, pswd]
         self.method_list = methods_list
-        assert self.method_list == ['get_decision', 'get_device', 'get_velocity']
+        # assert self.method_list == ['get_decision', 'get_device', 'get_velocity']
         self.access_sdk = AccessSDK(serverName, merchantId, apiKey, version)
         self.fake_arg = [session_id_wrong, user, pswd]
-        data1 = {'m':999666, 's':self.session_id}
+        data1 = {'m': 999666, 's': self.session_id}
         req = requests.Request('GET', dataCollector, params=data1)
         prepared = req.prepare()
         s = requests.Session()
@@ -104,7 +100,7 @@ class TestAPIAccess(unittest.TestCase):
         logger.debug(merchantId, serverName, version, self.session_id, user, methods_list)
 
     def error_handling(self, err):
-        "common error_handling for http 401 or 400"
+        """common error_handling for http 401 or 400"""
         logger.debug("http error %s, %s", err.msg, err.code)
         if 401 == err.code:
             self.assertEqual('UNAUTHORIZED', err.msg.upper())
@@ -112,7 +108,7 @@ class TestAPIAccess(unittest.TestCase):
             logger.debug('DataCollector request needed first %s, %s', err.code, err.msg)
             self.assertEqual(400, err.code)
             self.assertIn('BAD REQUEST', err.msg.upper())
-        raise
+        raise Exception()
 
     def test_api_access_get_hash(self):
         u = self.access_sdk._get_hash(u'admin')
@@ -123,7 +119,7 @@ class TestAPIAccess(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk._get_hash, '')
 
     def test_api_get_device(self):
-        "get_device"
+        """get_device"""
         self.assertRaises(HTTPError, self.access_sdk.get_device, self.fake_arg[0])
         expected = {u'device': {u'geoLat': 42.6833, u'mobile': 0, u'country': u'BG',
                                 u'region': u'42', u'geoLong': 23.3167, u'ipGeo': u'BG',
@@ -137,12 +133,12 @@ class TestAPIAccess(unittest.TestCase):
             self.assertEqual(dev.keys(), expected.keys())
 
     def test_api_get_decision(self):
-        "get_decision"
+        """get_decision"""
         self.assertRaises(HTTPError, self.access_sdk.get_decision, *self.fake_arg)
         expected = {u'decision': {u'errors': [],
                                   u'reply': {u'ruleEvents': {u'decision': u'A',
-                                                   u'ruleEvents': None,
-                                                   u'total': 0}},
+                                                             u'ruleEvents': None,
+                                                             u'total': 0}},
                                   u'warnings': []},
                     u'device': {u'country': u'BG',
                                 u'geoLat': 42.6833,
@@ -201,7 +197,7 @@ class TestAPIAccess(unittest.TestCase):
             self.assertEqual(dec.keys(), expected.keys())
 
     def test_api_get_velocity(self):
-        "get_velocity"
+        """get_velocity"""
         self.assertRaises(HTTPError, self.access_sdk.get_velocity, *self.fake_arg)
         expected = {u'device': {u'country': u'BG',
                                 u'geoLat': 42.6833,
@@ -260,35 +256,36 @@ class TestAPIAccess(unittest.TestCase):
             self.assertEqual(vel.keys(), expected.keys())
 
     def test_api_requests_empty_credentials(self):
-        "empty credentials - ValueError: Invalid value ''"
+        """empty credentials - ValueError: Invalid value ''"""
         for target in ['get_decision', 'get_velocity']:
             self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[self.session_id, '', ''])
 
     def test_api_requests_credentials_none(self):
-        "credentials None - ValueError: Invalid value 'None'"
+        """credentials None - ValueError: Invalid value 'None'"""
         for target in ['get_decision', 'get_velocity']:
             self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[self.session_id, None, None])
 
     def test_api_requests_missing_credentials(self):
-        "missing_credentials - TypeError: get_decision() missing 2 required positional arguments: 'username' and 'password'"
+        """missing_credentials - TypeError:
+        get_decision() missing 2 required positional arguments: 'username' and 'password'"""
         for target in ['get_decision', 'get_velocity']:
             self.assertRaises(TypeError, getattr(self.access_sdk, target), self.session_id)
 
     def test_api_requests_empty_session(self):
-        "session empty - HTTPError - HTTP Error 401: Unauthorized"
+        """session empty - HTTPError - HTTP Error 401: Unauthorized"""
         self.assertRaises(HTTPError, self.access_sdk.get_device, '')
         for target in ['get_decision', 'get_velocity']:
-            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *['', user, pswd])
+            self.assertRaises(ValueError, getattr(self.access_sdk, target), *['', user, pswd])
 
     def test_api_requests_missing_session(self):
-        "missing_session - HTTPError - HTTP Error 401: Unauthorized"
+        """missing_session - HTTPError - HTTP Error 401: Unauthorized"""
         self.assertRaises(HTTPError, self.access_sdk.get_device, None)
         for target in ['get_decision', 'get_velocity']:
-            self.assertRaises(HTTPError, getattr(self.access_sdk, target), *[None, user, pswd])
+            self.assertRaises(ValueError, getattr(self.access_sdk, target), *[None, user, pswd])
 
 
 if __name__ == "__main__":
     unittest.main(
         verbosity=2,
-        #~ defaultTest="TestAPIAccess.test_api_get_decision"
+        # defaultTest="TestAPIAccess.test_api_get_decision"
     )

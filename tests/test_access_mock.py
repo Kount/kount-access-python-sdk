@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # This file is part of the Kount access python sdk project
 # https://github.com/Kount/kount-access-python-sdk/)
 # Copyright (C) 2017 Kount Inc. All Rights Reserved.
-"unit tests with mock"
+"""unit tests with mock"""
+
 from __future__ import absolute_import, unicode_literals, division, print_function
+
 __author__ = "Kount Access SDK"
 __version__ = "2.1.1"
 __maintainer__ = "Kount Access SDK"
@@ -16,31 +17,33 @@ import logging
 import unittest
 import urllib
 import sys
+import six
+import kount_access.access_sdk
+
 if sys.version_info[0] == 2:
     from mock import patch, MagicMock, Mock, call
     from urllib2 import HTTPError
     import urllib2
+
     py27 = True
 else:
     from unittest.mock import patch, MagicMock, Mock, call
     from urllib.error import HTTPError
+
     py27 = False
-import six
 
-import kount_access.access_sdk
-
-#~ Merchant's customer ID.
+# Merchant's customer ID.
 merchantId = 999666
 
-#~ Kount host for integration tests.
+# Kount host for integration tests.
 serverName = '%s.kountbox.net' % merchantId
-version = '0210'
+version = '0400'
 logger = logging.getLogger('kount.test')
 
-#~ must be 32 characters long
+# must be 32 characters long
 session_id = '8f18a81cfb6e3179ece7138ac81019aa'
 apiKey = 'FAKE-API-KEY'
-logger = logging.getLogger('kount.test')
+
 device_response = {
     "device":
         {"id": "06f5da990b2e9513267865eb0d6cf0df",
@@ -50,9 +53,9 @@ device_response = {
          "region": "ID",
          "geoLat": 43.37,
          "geoLong": -116.200
-        },
+         },
     "response_id": "fc5c7cb1bd7538d3b64160c5dfedc3b9"
-    }
+}
 
 velocity_response = {
     "device":
@@ -65,16 +68,16 @@ velocity_response = {
          "ip_address": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "plh": 3, "plm": 3, "ulh": 1, "ulm": 1},
          "password": {"alh": 1, "alm": 1, "dlh": 1, "dlm": 1, "iplh": 1, "iplm": 1, "ulh": 1, "ulm": 1},
          "user": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
-        }
-    }
+         }
+}
 
 decision_response = {
     "decision":
         {"errors": [],
          "reply":
-            {"ruleEvents": {"decision": "A", "ruleEvents": [], "total": 0}},
+             {"ruleEvents": {"decision": "A", "ruleEvents": [], "total": 0}},
          "warnings": []
-        },
+         },
     "device":
         {"id": "92fd3030a2bc84d6985d9df229c60fda", "ipAddress": "64.128.91.251",
          "ipGeo": "US", "mobile": 1, "proxy": 0,
@@ -89,7 +92,7 @@ decision_response = {
             "user": {"alh": 3, "alm": 3, "dlh": 2, "dlm": 1, "iplh": 1, "iplm": 1, "plh": 3, "plm": 3}
         }}
 
-#~ Access SDK methods
+# Access SDK methods
 method_list = ['get_device', 'get_decision', 'get_velocity']
 user = u'test@test.com'
 pswd = u'password'
@@ -100,11 +103,12 @@ logger.debug("MOCK tests: merchantId=%s, serverName=%s, version=%s,\
 
 
 class SequenceMeta(type):
-    "create tests for all methods in access sdk"
-    def __new__(mcs, name, bases, dictionary):
+    """create tests for all methods in access sdk"""
 
+    def __new__(mcs, name, bases, dictionary):
         def gen_test(method):
-            "create test for each method in access sdk"
+            """create test for each method in access sdk"""
+
             def test(self):
                 """main function that collect all methods from AccessSDK
                 and create unit-tests for them"""
@@ -112,6 +116,7 @@ class SequenceMeta(type):
                     HTTPError,
                     Mock(side_effect=HTTPError(
                         url=serverName, code=401, msg='Not Authorized', hdrs=None, fp=None)))
+
             return test
 
         for method in method_list:
@@ -119,15 +124,17 @@ class SequenceMeta(type):
             dictionary[test_name] = gen_test(method)
         return type.__new__(mcs, name, bases, dictionary)
 
+
 class TestSequence(six.with_metaclass(SequenceMeta, unittest.TestCase)):
-    "TestSequence - generate tests for each method in AccessSDK"
-    if py27: pass
+    """TestSequence - generate tests for each method in AccessSDK"""
+    if py27:
+        pass
     else:
         __metaclass__ = SequenceMeta
 
 
 class TestAPIAccessMock(unittest.TestCase):
-    "TestAPIAccessMock"
+    """TestAPIAccessMock"""
     maxDiff = None
 
     @patch('kount_access.access_sdk.AccessSDK')
@@ -142,7 +149,8 @@ class TestAPIAccessMock(unittest.TestCase):
         self.access_sdk.mockhash.return_value = '42'
         self.assertEqual(self.access_sdk.mockhash(pswd), '42')
 
-    def access_methods_mocked(self, method, exp_response):
+    @staticmethod
+    def access_methods_mocked(method, exp_response):
         """assert the expected results from access_sdk's methods"""
         access_methods = {'get_decision': args, 'get_device': args[0], 'get_velocity': args}
         real_method = MagicMock(name=method, return_value=exp_response)
@@ -189,12 +197,12 @@ class TestAPIAccessMock(unittest.TestCase):
         """should catch the missing username and password
          "missing_credentials - TypeError for missing required positional argument
         """
-        msgTypeError = "TypeError: get_decision() missing 2 required\
+        msg_type_error = "TypeError: get_decision() missing 2 required\
         positional arguments: 'username' and 'password'"
         self.assertTrue(self.invalid_credentials(
             error=TypeError,
             param_list=[session_id],
-            msg=msgTypeError))
+            msg=msg_type_error))
 
     @patch('kount_access.access_sdk.AccessSDK')
     def test_mock_invalid_session(self, access):
@@ -283,5 +291,5 @@ class TestAPIAccessMock(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main(
         verbosity=2,
-        #~ defaultTest="TestAPIAccessMock.test_mock_logger"
+        # defaultTest="TestAPIAccessMock.test_mock_logger"
     )
