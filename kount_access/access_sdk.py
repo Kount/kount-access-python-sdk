@@ -291,6 +291,9 @@ class AccessSDK:
             'ts': trusted_state
         }
 
+        logger.info("get_devicetrustbysession -> v: %s, s: %s, uniq: %s, trusted state: %s" %
+                    (self.version, session, uniq, trusted_state))
+
         return self.__request_post(url, data)
 
     def _build_url(self, endpoint):
