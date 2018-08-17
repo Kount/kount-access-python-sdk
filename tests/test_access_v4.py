@@ -92,6 +92,61 @@ class TestBasicConnectivity(unittest.TestCase):
         result = self.access_sdk.get_devicetrustbysession(self.SESSION_ID, self.UNIQ, trusted_state)
         self.assertEqual(result, expected)
 
+    def test_api_get_uniques(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.access_sdk.version = self.FAKE_VERSION
+        self.assertRaises(HTTPError, self.access_sdk.get_uniques, self.DEVICE_ID)
+
+        self.access_sdk.version = self.version
+        self.assertRaises(ValueError, self.access_sdk.get_uniques, self.FAKE_DEVICE_ID)
+
+        expected = {
+            'response_id': 'd73aabde31df4ff89f85a99ed1e835e1',
+            'uniques': [{
+                'unique': 'abc10@abc.com',
+                'datelastseen': '2018-08-13T12:18:57.636Z',
+                'truststate': 'trusted'
+            }, {
+                'unique': 'abc111@abc.com',
+                'datelastseen': '2018-08-13T12:22:58.113Z',
+                'truststate': 'trusted'
+            }, {
+                'unique': 'abc555555@abc.com',
+                'datelastseen': '2018-08-13T12:16:56.165Z',
+                'truststate': 'trusted'
+            }, {
+                'unique': 'abc5@abc.com',
+                'datelastseen': '2018-08-13T12:16:47.144Z',
+                'truststate': 'trusted'
+            }]
+        }
+        result = self.access_sdk.get_uniques(self.DEVICE_ID)
+        self.assertEqual(result.keys(), expected.keys())
+
+    def test_api_get_devices(self):
+        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
+
+        self.access_sdk.version = self.FAKE_VERSION
+        self.assertRaises(HTTPError, self.access_sdk.get_devices, self.UNIQ)
+
+        self.access_sdk.version = self.version
+        self.assertRaises(ValueError, self.access_sdk.get_devices, self.FAKE_UNIQ)
+
+        expected = {
+            "response_id": "e4aba68fcae14d1e9a75f1bf6c5236cb",
+            "devices": [
+                {
+                    "deviceid": "9fbc4b5f963a4a109fa0aebf3dc677c7",
+                    "truststate": "trusted",
+                    "datefirstseen": "2018-08-13T12:16:56.165Z",
+                    "friendlyname": ""
+                }
+            ]
+        }
+        result = self.access_sdk.get_devices(self.UNIQ)
+        self.assertEqual(result.keys(), expected.keys())
+
 
 if __name__ == "__main__":
     unittest.main(
