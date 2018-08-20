@@ -372,7 +372,6 @@ class AccessSDK:
 
         if behaviosec:
             data['m'] = self.merchant_id
-            data['timing'] = "dasda"
 
         if velocity or decision:
             self._validate_param(username, "invalid username: ")
