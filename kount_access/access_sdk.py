@@ -305,8 +305,8 @@ class AccessSDK:
 
     def get_uniques(self, device_id):
         """
-        Get uniques for a UNIQ
-        :param device_id is a issue for the device
+        Get a list of UNIQ values for given device ID
+        :param device_id is device identifier assigned by Kount
         :return: request result
         """
         self._validate_param(device_id, "invalid device id: ")
