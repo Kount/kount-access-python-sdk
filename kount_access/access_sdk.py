@@ -67,7 +67,7 @@ class AccessSDK:
         """
         self.host = host
         self.merchant_id = merchant_id
-        self.api_key = api_key
+        self.api_key = str(api_key)
         self.authorization_header = self.__init_authorization_header()
         self.version = self.__version__
         if version is not None:
@@ -171,8 +171,11 @@ class AccessSDK:
         if additional_params is not None:
             self.__add_param(request, additional_params)
 
+        user_hash = params.get('uh', None)
+        password_hash = params.get('ph', None)
+
         logger.info("get_%s -> v: %s, s: %s, username: %s, password: %s" %
-                    (endpoint, self.version, session, params['uh'], params['ph']))
+                    (endpoint, self.version, session, user_hash, password_hash))
 
         return self.__request_post(request['url'], request['params'])
 
