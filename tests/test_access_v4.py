@@ -50,9 +50,6 @@ class TestBasicConnectivity(unittest.TestCase):
 
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
 
-        self.access_sdk.version = self.FAKE_VERSION
-        self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID, self.UNIQ, trusted_state)
-
         self.access_sdk.version = self.version
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.FAKE_DEVICE_ID,
                           self.UNIQ, trusted_state)
@@ -61,18 +58,18 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID,
                           self.UNIQ, self.FAKE_TRUSTED_STATE)
 
-        expected = None
-        result = self.access_sdk.get_devicetrustbydevice(self.DEVICE_ID, self.UNIQ, trusted_state)
-        self.assertEqual(result, expected)
+        if self.api_key:
+            self.access_sdk.version = self.FAKE_VERSION
+            self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID, self.UNIQ, trusted_state)
+
+            expected = None
+            result = self.access_sdk.get_devicetrustbydevice(self.DEVICE_ID, self.UNIQ, trusted_state)
+            self.assertEqual(result, expected)
 
     def test_api_get_devicetrustbysession(self):
         trusted_state = "trusted"
 
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
-
-        self.access_sdk.version = self.FAKE_VERSION
-        self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbysession, self.SESSION_ID,
-                          self.UNIQ, trusted_state)
 
         self.access_sdk.version = self.version
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession,
@@ -82,70 +79,76 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk.get_devicetrustbysession, self.SESSION_ID,
                           self.UNIQ, self.FAKE_TRUSTED_STATE)
 
-        expected = None
-        result = self.access_sdk.get_devicetrustbysession(self.SESSION_ID, self.UNIQ, trusted_state)
-        self.assertEqual(result, expected)
+        if self.api_key:
+            self.access_sdk.version = self.FAKE_VERSION
+            self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbysession, self.SESSION_ID,
+                              self.UNIQ, trusted_state)
+
+            expected = None
+            result = self.access_sdk.get_devicetrustbysession(self.SESSION_ID, self.UNIQ, trusted_state)
+            self.assertEqual(result, expected)
 
     def test_api_get_uniques(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
 
-        self.access_sdk.version = self.FAKE_VERSION
-        self.assertRaises(HTTPError, self.access_sdk.get_uniques, self.DEVICE_ID)
-
         self.access_sdk.version = self.version
         self.assertRaises(ValueError, self.access_sdk.get_uniques, self.FAKE_DEVICE_ID)
 
-        expected = {
-            'response_id': 'd73aabde31df4ff89f85a99ed1e835e1',
-            'uniques': [{
-                'unique': 'abc10@abc.com',
-                'datelastseen': '2018-08-13T12:18:57.636Z',
-                'truststate': 'trusted'
-            }, {
-                'unique': 'abc111@abc.com',
-                'datelastseen': '2018-08-13T12:22:58.113Z',
-                'truststate': 'trusted'
-            }, {
-                'unique': 'abc555555@abc.com',
-                'datelastseen': '2018-08-13T12:16:56.165Z',
-                'truststate': 'trusted'
-            }, {
-                'unique': 'abc5@abc.com',
-                'datelastseen': '2018-08-13T12:16:47.144Z',
-                'truststate': 'trusted'
-            }]
-        }
-        result = self.access_sdk.get_uniques(self.DEVICE_ID)
-        self.assertEqual(result.keys(), expected.keys())
+        if self.api_key:
+            expected = {
+                'response_id': 'd73aabde31df4ff89f85a99ed1e835e1',
+                'uniques': [{
+                    'unique': 'abc10@abc.com',
+                    'datelastseen': '2018-08-13T12:18:57.636Z',
+                    'truststate': 'trusted'
+                }, {
+                    'unique': 'abc111@abc.com',
+                    'datelastseen': '2018-08-13T12:22:58.113Z',
+                    'truststate': 'trusted'
+                }, {
+                    'unique': 'abc555555@abc.com',
+                    'datelastseen': '2018-08-13T12:16:56.165Z',
+                    'truststate': 'trusted'
+                }, {
+                    'unique': 'abc5@abc.com',
+                    'datelastseen': '2018-08-13T12:16:47.144Z',
+                    'truststate': 'trusted'
+                }]
+            }
+
+            self.access_sdk.version = self.FAKE_VERSION
+            self.assertRaises(HTTPError, self.access_sdk.get_uniques, self.DEVICE_ID)
+
+            result = self.access_sdk.get_uniques(self.DEVICE_ID)
+            self.assertEqual(result.keys(), expected.keys())
 
     def test_api_get_devices(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
 
-        self.access_sdk.version = self.FAKE_VERSION
-        self.assertRaises(HTTPError, self.access_sdk.get_devices, self.UNIQ)
-
         self.access_sdk.version = self.version
         self.assertRaises(ValueError, self.access_sdk.get_devices, self.FAKE_UNIQ)
 
-        expected = {
-            "response_id": "e4aba68fcae14d1e9a75f1bf6c5236cb",
-            "devices": [
-                {
-                    "deviceid": "9fbc4b5f963a4a109fa0aebf3dc677c7",
-                    "truststate": "trusted",
-                    "datefirstseen": "2018-08-13T12:16:56.165Z",
-                    "friendlyname": ""
-                }
-            ]
-        }
-        result = self.access_sdk.get_devices(self.UNIQ)
-        self.assertEqual(result.keys(), expected.keys())
+        if self.api_key:
+            expected = {
+                "response_id": "e4aba68fcae14d1e9a75f1bf6c5236cb",
+                "devices": [
+                    {
+                        "deviceid": "9fbc4b5f963a4a109fa0aebf3dc677c7",
+                        "truststate": "trusted",
+                        "datefirstseen": "2018-08-13T12:16:56.165Z",
+                        "friendlyname": ""
+                    }
+                ]
+            }
+
+            self.access_sdk.version = self.FAKE_VERSION
+            self.assertRaises(HTTPError, self.access_sdk.get_devices, self.UNIQ)
+
+            result = self.access_sdk.get_devices(self.UNIQ)
+            self.assertEqual(result.keys(), expected.keys())
 
     def test_api_get_info(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
-
-        self.access_sdk.version = self.FAKE_VERSION
-        self.assertRaises(HTTPError, self.access_sdk.get_info, self.SESSION_ID, info=True)
 
         self.access_sdk.version = self.version
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, uniq=self.FAKE_UNIQ,
@@ -154,26 +157,31 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, uniq=self.FAKE_UNIQ,
                           info=True, trusted=True)
 
+        if self.api_key:
+            self.access_sdk.version = self.FAKE_VERSION
+            self.assertRaises(HTTPError, self.access_sdk.get_info, self.SESSION_ID, info=True)
+
     def test_api_get_info_device_info(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
 
-        expected = {
-            "device": {
-                "id": "9fbc4b5f963a4a109fa0aebf3dc677c7",
-                "ipAddress": "93.123.21.68",
-                "ipGeo": "BG",
-                "mobile": 0,
-                "proxy": 0,
-                "tor": 0,
-                "region": "61",
-                "country": "BG",
-                "geoLat": 43.2167,
-                "geoLong": 27.9167
-            },
-            "response_id": "4f04917e14874b708511b46320e757ca"
-        }
-        result = self.access_sdk.get_info(self.SESSION_ID, info=True)
-        self.assertEqual(result.keys(), expected.keys())
+        if self.api_key:
+            expected = {
+                "device": {
+                    "id": "9fbc4b5f963a4a109fa0aebf3dc677c7",
+                    "ipAddress": "93.123.21.68",
+                    "ipGeo": "BG",
+                    "mobile": 0,
+                    "proxy": 0,
+                    "tor": 0,
+                    "region": "61",
+                    "country": "BG",
+                    "geoLat": 43.2167,
+                    "geoLong": 27.9167
+                },
+                "response_id": "4f04917e14874b708511b46320e757ca"
+            }
+            result = self.access_sdk.get_info(self.SESSION_ID, info=True)
+            self.assertEqual(result.keys(), expected.keys())
 
     def test_api_get_info_velocity(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
@@ -182,64 +190,65 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, velocity=True, username=self.USERNAME)
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, velocity=True, username=self.PASSWORD)
 
-        expected = {
-            "response_id": "c1fc61e995134c368c3f43354e2c6261",
-            "velocity": {
-                "account": {
-                    "dlh": 1,
-                    "dlm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "plh": 1,
-                    "plm": 1,
-                    "ulh": 1,
-                    "ulm": 1
-                },
-                "device": {
-                    "alh": 1,
-                    "alm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "plh": 1,
-                    "plm": 1,
-                    "ulh": 1,
-                    "ulm": 1
-                },
-                "ip_address": {
-                    "alh": 1,
-                    "alm": 1,
-                    "dlh": 1,
-                    "dlm": 1,
-                    "plh": 1,
-                    "plm": 1,
-                    "ulh": 1,
-                    "ulm": 1
-                },
-                "password": {
-                    "alh": 1,
-                    "alm": 1,
-                    "dlh": 1,
-                    "dlm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "ulh": 1,
-                    "ulm": 1
-                },
-                "user": {
-                    "alh": 1,
-                    "alm": 1,
-                    "dlh": 1,
-                    "dlm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "plh": 1,
-                    "plm": 1
+        if self.api_key:
+            expected = {
+                "response_id": "c1fc61e995134c368c3f43354e2c6261",
+                "velocity": {
+                    "account": {
+                        "dlh": 1,
+                        "dlm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "plh": 1,
+                        "plm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "device": {
+                        "alh": 1,
+                        "alm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "plh": 1,
+                        "plm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "ip_address": {
+                        "alh": 1,
+                        "alm": 1,
+                        "dlh": 1,
+                        "dlm": 1,
+                        "plh": 1,
+                        "plm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "password": {
+                        "alh": 1,
+                        "alm": 1,
+                        "dlh": 1,
+                        "dlm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "user": {
+                        "alh": 1,
+                        "alm": 1,
+                        "dlh": 1,
+                        "dlm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "plh": 1,
+                        "plm": 1
+                    }
                 }
             }
-        }
-        result = self.access_sdk.get_info(self.SESSION_ID, velocity=True,
-                                          username=self.USERNAME, password=self.PASSWORD)
-        self.assertEqual(result.keys(), expected.keys())
+            result = self.access_sdk.get_info(self.SESSION_ID, velocity=True,
+                                              username=self.USERNAME, password=self.PASSWORD)
+            self.assertEqual(result.keys(), expected.keys())
 
     def test_api_get_info_device_info_velocity(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
@@ -250,77 +259,78 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, info=True,
                           velocity=True, username=self.PASSWORD)
 
-        expected = {
-            "device": {
-                "id": "9fbc4b5f963a4a109fa0aebf3dc677c7",
-                "ipAddress": "93.123.21.68",
-                "ipGeo": "BG",
-                "mobile": 0,
-                "proxy": 0,
-                "tor": 0,
-                "region": "61",
-                "country": "BG",
-                "geoLat": 43.2167,
-                "geoLong": 27.9167
-            },
-            "response_id": "81fb344540cb4871ac34a5ec64689b0c",
-            "velocity": {
-                "account": {
-                    "dlh": 1,
-                    "dlm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "plh": 1,
-                    "plm": 1,
-                    "ulh": 1,
-                    "ulm": 1
-                },
+        if self.api_key:
+            expected = {
                 "device": {
-                    "alh": 1,
-                    "alm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "plh": 1,
-                    "plm": 1,
-                    "ulh": 1,
-                    "ulm": 1
+                    "id": "9fbc4b5f963a4a109fa0aebf3dc677c7",
+                    "ipAddress": "93.123.21.68",
+                    "ipGeo": "BG",
+                    "mobile": 0,
+                    "proxy": 0,
+                    "tor": 0,
+                    "region": "61",
+                    "country": "BG",
+                    "geoLat": 43.2167,
+                    "geoLong": 27.9167
                 },
-                "ip_address": {
-                    "alh": 1,
-                    "alm": 1,
-                    "dlh": 1,
-                    "dlm": 1,
-                    "plh": 1,
-                    "plm": 1,
-                    "ulh": 1,
-                    "ulm": 1
-                },
-                "password": {
-                    "alh": 1,
-                    "alm": 1,
-                    "dlh": 1,
-                    "dlm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "ulh": 1,
-                    "ulm": 1
-                },
-                "user": {
-                    "alh": 1,
-                    "alm": 1,
-                    "dlh": 1,
-                    "dlm": 1,
-                    "iplh": 1,
-                    "iplm": 1,
-                    "plh": 1,
-                    "plm": 1
+                "response_id": "81fb344540cb4871ac34a5ec64689b0c",
+                "velocity": {
+                    "account": {
+                        "dlh": 1,
+                        "dlm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "plh": 1,
+                        "plm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "device": {
+                        "alh": 1,
+                        "alm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "plh": 1,
+                        "plm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "ip_address": {
+                        "alh": 1,
+                        "alm": 1,
+                        "dlh": 1,
+                        "dlm": 1,
+                        "plh": 1,
+                        "plm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "password": {
+                        "alh": 1,
+                        "alm": 1,
+                        "dlh": 1,
+                        "dlm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "ulh": 1,
+                        "ulm": 1
+                    },
+                    "user": {
+                        "alh": 1,
+                        "alm": 1,
+                        "dlh": 1,
+                        "dlm": 1,
+                        "iplh": 1,
+                        "iplm": 1,
+                        "plh": 1,
+                        "plm": 1
+                    }
                 }
             }
-        }
 
-        result = self.access_sdk.get_info(self.SESSION_ID, info=True, velocity=True,
-                                          username=self.USERNAME, password=self.PASSWORD)
-        self.assertEqual(result.keys(), expected.keys())
+            result = self.access_sdk.get_info(self.SESSION_ID, info=True, velocity=True,
+                                              username=self.USERNAME, password=self.PASSWORD)
+            self.assertEqual(result.keys(), expected.keys())
 
     def test_api_get_info_decision(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
@@ -329,24 +339,25 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, decision=True, username=self.USERNAME)
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID, decision=True, username=self.PASSWORD)
 
-        expected = {
-            "decision": {
-                "errors": [],
-                "warnings": [],
-                "reply": {
-                    "ruleEvents": {
-                        "decision": "A",
-                        "total": 0,
-                        "ruleEvents": None
+        if self.api_key:
+            expected = {
+                "decision": {
+                    "errors": [],
+                    "warnings": [],
+                    "reply": {
+                        "ruleEvents": {
+                            "decision": "A",
+                            "total": 0,
+                            "ruleEvents": None
+                        }
                     }
-                }
-            },
-            "response_id": "fc9ba2b36a214477a105afb772e0da00"
-        }
+                },
+                "response_id": "fc9ba2b36a214477a105afb772e0da00"
+            }
 
-        result = self.access_sdk.get_info(self.SESSION_ID, decision=True,
-                                          username=self.USERNAME, password=self.PASSWORD)
-        self.assertEqual(result.keys(), expected.keys())
+            result = self.access_sdk.get_info(self.SESSION_ID, decision=True,
+                                              username=self.USERNAME, password=self.PASSWORD)
+            self.assertEqual(result.keys(), expected.keys())
 
     def test_api_get_info_trusted(self):
         self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
@@ -357,16 +368,17 @@ class TestBasicConnectivity(unittest.TestCase):
         self.assertRaises(ValueError, self.access_sdk.get_info, self.SESSION_ID,
                           trusted=True, username=self.USERNAME, password=self.PASSWORD)
 
-        expected = {
-            "response_id": "6ec2006514954c5793bdabbdd5fbdd95",
-            "trusted": {
-                "state": "trusted"
+        if self.api_key:
+            expected = {
+                "response_id": "6ec2006514954c5793bdabbdd5fbdd95",
+                "trusted": {
+                    "state": "trusted"
+                }
             }
-        }
 
-        result = self.access_sdk.get_info(self.SESSION_ID, trusted=True, uniq=self.UNIQ,
-                                          username=self.USERNAME, password=self.PASSWORD)
-        self.assertEqual(result.keys(), expected.keys())
+            result = self.access_sdk.get_info(self.SESSION_ID, trusted=True, uniq=self.UNIQ,
+                                              username=self.USERNAME, password=self.PASSWORD)
+            self.assertEqual(result.keys(), expected.keys())
 
 
 if __name__ == "__main__":

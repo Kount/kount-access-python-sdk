@@ -5,7 +5,7 @@ TEST_MERCHANT = '999666'
 
 
 def pytest_addoption(parser):
-    parser.addoption('--api-key', action='store', type=str,  required=True, default=TEST_API_KEY)
+    parser.addoption('--api-key', action='store', type=str, default=TEST_API_KEY)
     parser.addoption('--merchant-id', action='store', type=int, default=TEST_MERCHANT)
 
 
