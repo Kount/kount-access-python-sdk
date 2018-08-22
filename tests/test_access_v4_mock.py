@@ -83,22 +83,3 @@ class TestAccessSDK(TestCase):
         response = sdk.get_devices(self.UNIQ)
         self.assertEqual(response, response)
         self.assertIsInstance(response, dict)
-
-    @patch('kount_access.access_sdk.AccessSDK')
-    def test_get_devices_fake_device_id(self, MockAccessSDK):
-        sdk = MockAccessSDK()
-
-        sdk.get_devices.return_value = {
-            "response_id": "e4aba68fcae14d1e9a75f1bf6c5236cb",
-            "devices": [
-                {
-                    "deviceid": "9fbc4b5f963a4a109fa0aebf3dc677c7",
-                    "truststate": "trusted",
-                    "datefirstseen": "2018-08-13T12:16:56.165Z",
-                    "friendlyname": ""
-                }
-            ]
-        }
-
-        response = sdk.get_devices(self.UNIQ)
-        self.assertEqual(response, response)
