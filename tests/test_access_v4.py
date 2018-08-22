@@ -9,6 +9,7 @@
 import sys
 import unittest
 import pytest
+import requests
 
 from kount_access.access_sdk import AccessSDK
 
@@ -25,6 +26,7 @@ __email__ = "sdkadmin@kount.com"
 __status__ = "Development"
 
 server_name = 'api-sandbox01.kountaccess.com'
+data_collector = "https://sandbox01.kaxsdc.com/collect/sdk"
 
 
 @pytest.mark.usefixtures("api_key", "merchant_id")
@@ -44,6 +46,20 @@ class TestBasicConnectivity(unittest.TestCase):
     PASSWORD = "password"
     UNIQ = "abc111@abc.com"
     DEVICE_ID = "9fbc4b5f963a4a109fa0aebf3dc677c7"
+
+    @classmethod
+    def setUpClass(self):
+        data = {
+            'm': 999666,
+            's': self.SESSION_ID
+        }
+
+        req = requests.Request('GET', data_collector, params=data)
+        prepared = req.prepare()
+        s = requests.Session()
+        result = s.send(prepared)
+
+        assert result.status_code == 200
 
     def test_api_get_devicetrustbydevice(self):
         trusted_state = "trusted"
