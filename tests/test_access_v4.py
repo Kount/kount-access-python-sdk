@@ -63,6 +63,7 @@ class TestBasicConnectivity(unittest.TestCase):
             self.assertRaises(HTTPError, self.access_sdk.get_devicetrustbydevice, self.DEVICE_ID, self.UNIQ, trusted_state)
 
             expected = None
+            self.access_sdk.version = self.version
             result = self.access_sdk.get_devicetrustbydevice(self.DEVICE_ID, self.UNIQ, trusted_state)
             self.assertEqual(result, expected)
 
@@ -85,6 +86,7 @@ class TestBasicConnectivity(unittest.TestCase):
                               self.UNIQ, trusted_state)
 
             expected = None
+            self.access_sdk.version = self.version
             result = self.access_sdk.get_devicetrustbysession(self.SESSION_ID, self.UNIQ, trusted_state)
             self.assertEqual(result, expected)
 
@@ -119,6 +121,7 @@ class TestBasicConnectivity(unittest.TestCase):
             self.access_sdk.version = self.FAKE_VERSION
             self.assertRaises(HTTPError, self.access_sdk.get_uniques, self.DEVICE_ID)
 
+            self.access_sdk.version = self.version
             result = self.access_sdk.get_uniques(self.DEVICE_ID)
             self.assertEqual(result.keys(), expected.keys())
 
@@ -144,6 +147,7 @@ class TestBasicConnectivity(unittest.TestCase):
             self.access_sdk.version = self.FAKE_VERSION
             self.assertRaises(HTTPError, self.access_sdk.get_devices, self.UNIQ)
 
+            self.access_sdk.version = self.version
             result = self.access_sdk.get_devices(self.UNIQ)
             self.assertEqual(result.keys(), expected.keys())
 
