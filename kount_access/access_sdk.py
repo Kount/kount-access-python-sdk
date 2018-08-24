@@ -57,11 +57,9 @@ class AccessSDK:
         "behaviosec": 16
     }
 
-    def __init__(self, host, merchant_id, api_key, version=None, behavio_host=None, behavio_environment=None):
+    def __init__(self, host, merchant_id, api_key, version=None):
         """
         Constructor.
-        :param behavio_host is BehavioSec host
-        :param behavio_environment is working environment
         :param version:
         :param host Kount server to connect.
         :param merchant_id Merchant's id.
@@ -70,8 +68,6 @@ class AccessSDK:
         """
         self.host = host
         self.merchant_id = merchant_id
-        self.behavio_host = behavio_host
-        self.behavio_environment = behavio_environment
         self.api_key = str(api_key)
         self.authorization_header = self.__init_authorization_header()
         self.version = self.__version__
@@ -395,9 +391,11 @@ class AccessSDK:
 
         return self.__request_post(url, data)
 
-    def behaviosec(self, session, uniq, timing, merchant):
+    def behaviosec(self, session, uniq, timing, merchant, behavio_host, behavio_environment):
         """
         BehavioSec
+        :param behavio_host is BehavioSec host
+        :param behavio_environment is working environment
         :param session that has already had a device collection made
         :param uniq is a customer identifier
         :param timing
@@ -406,15 +404,17 @@ class AccessSDK:
         """
         self._validate_session(session)
         self._validate_param(uniq, "invalid uniq: ")
-        self._validate_param(self.behavio_host, "invalid behavio host")
-        self._validate_param(self.behavio_environment, "invalid environment")
+        self._validate_param(timing, "invalid timing")
+        self._validate_param(merchant, "invalid merchant ID")
+        self._validate_param(behavio_host, "invalid behavio host")
+        self._validate_param(behavio_environment, "invalid environment")
 
-        url = self._build_url(self.behavio_host + '/' + self.behavio_environment, self.BEHAVIOSEC_ENDPOINT)
+        url = self._build_url(behavio_host + '/' + behavio_environment, self.BEHAVIOSEC_ENDPOINT)
 
         data = {
             'uniq': uniq,
             's': session,
-            'timing': timing,  # TODO
+            'timing': timing,
             'm': merchant
         }
 
