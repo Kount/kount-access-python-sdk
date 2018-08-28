@@ -41,6 +41,7 @@ class AccessSDK:
     # This is the default service version for this SDK - 0400.
     __version__ = '0400'
 
+    BEHAVIOSEC_ENDPOINT = "/behavio/data"
     DEVICE_TRUST_BY_SESSION = "/api/devicetrustbysession"
     DEVICE_TRUST_BY_DEVICE = "/api/devicetrustbydevice"
     GET_UNIQUES_ENDPOINT = "/api/getuniques"
@@ -59,11 +60,11 @@ class AccessSDK:
     def __init__(self, host, merchant_id, api_key, version=None):
         """
         Constructor.
-        @param version:
-        @param host Kount server to connect.
-        @param merchant_id Merchant's id.
-        @param api_key Merchant's api key.
-        @param version Optional version string to override default.
+        :param version:
+        :param host Kount server to connect.
+        :param merchant_id Merchant's id.
+        :param api_key Merchant's api key.
+        :param version Optional version string to override default.
         """
         self.host = host
         self.merchant_id = merchant_id
@@ -211,7 +212,7 @@ class AccessSDK:
             raise ValueError("Invalid value '%s'." % value)
         return hashlib.sha256(str(value).encode('utf-8')).hexdigest()
 
-    def __request(self, url, values=None):
+    def __request(self, url, values=None, content_type=None):
         """
         Helper for making web requests and handling response.
         @param url URL to request.
@@ -220,6 +221,11 @@ class AccessSDK:
         """
         if values:
             values = values.encode('utf-8')
+
+        header = self.authorization_header
+        if content_type:
+            header['Content-Type'] = 'application/x-www-form-urlencoded'
+
         request = urllibr.Request(url, values, self.authorization_header)
         try:
             response = urllibr.urlopen(request)
@@ -244,7 +250,7 @@ class AccessSDK:
             v = urllib.parse.urlencode(values)
         return self.__request(url + "?" + v)
 
-    def __request_post(self, url, values):
+    def __request_post(self, url, values, content_type=None):
         """
         Wrapper for request() to send request as a POST.
         @param url URL to request.
@@ -252,9 +258,9 @@ class AccessSDK:
         @return request result.
         """
         if py27:
-            return self.__request(url, urllib.urlencode(values))
+            return self.__request(url, urllib.urlencode(values), content_type)
         else:
-            return self.__request(url, urllib.parse.urlencode(values))
+            return self.__request(url, urllib.parse.urlencode(values), content_type)
 
     def get_devicetrustbydevice(self, device_id, uniq, trusted_state):
         """
@@ -268,7 +274,7 @@ class AccessSDK:
         self._validate_param(uniq, "invalid uniq: ")
         self._validate_state(trusted_state)
 
-        url = self._build_url(self.DEVICE_TRUST_BY_DEVICE)
+        url = self._build_url(self.host, self.DEVICE_TRUST_BY_DEVICE)
         data = {
             'v': self.version,
             'd': device_id,
@@ -293,7 +299,7 @@ class AccessSDK:
         self._validate_param(uniq, "invalid uniq: ")
         self._validate_state(trusted_state)
 
-        url = self._build_url(self.DEVICE_TRUST_BY_SESSION)
+        url = self._build_url(self.host, self.DEVICE_TRUST_BY_SESSION)
         data = {
             'v': self.version,
             's': session,
@@ -314,7 +320,7 @@ class AccessSDK:
         """
         self._validate_param(device_id, "invalid device id: ")
 
-        url = self._build_url(self.GET_UNIQUES_ENDPOINT)
+        url = self._build_url(self.host, self.GET_UNIQUES_ENDPOINT)
         data = {
             'v': self.version,
             'd': device_id
@@ -332,7 +338,7 @@ class AccessSDK:
         """
         self._validate_param(uniq, "invalid uniq: ")
 
-        url = self._build_url(self.GET_DEVICES_ENDPOINT)
+        url = self._build_url(self.host, self.GET_DEVICES_ENDPOINT)
         data = {
             'v': self.version,
             'uniq': uniq
@@ -381,9 +387,39 @@ class AccessSDK:
             self._validate_param(password, "invalid password: ")
             data = self._prepare_hashes(data, username, password)
 
-        url = self._build_url(self.INFO_ENDPOINT)
+        url = self._build_url(self.host, self.INFO_ENDPOINT)
 
         return self.__request_post(url, data)
+
+    def behaviosec(self, session, uniq, timing, merchant, behavio_host, behavio_environment):
+        """
+        BehavioSec
+        :param behavio_host is BehavioSec host
+        :param behavio_environment is working environment
+        :param session that has already had a device collection made
+        :param uniq is a customer identifier
+        :param timing
+        :param merchant id
+        :return: request result
+        """
+        self._validate_session(session)
+        self._validate_param(uniq, "invalid uniq: ")
+        self._validate_param(timing, "invalid timing")
+        self._validate_param(merchant, "invalid merchant ID")
+        self._validate_param(behavio_host, "invalid behavio host")
+        self._validate_param(behavio_environment, "invalid environment")
+
+        url = self._build_url(behavio_host + '/' + behavio_environment, self.BEHAVIOSEC_ENDPOINT)
+
+        data = {
+            'uniq': uniq,
+            's': session,
+            'timing': timing,
+            'm': merchant
+        }
+
+        logger.info("behaviosec -> uniq: %s, s: %s, timing: %s, m: %s" % (uniq, session, timing, merchant))
+        return self.__request_post(url, data, 'application/x-www-form-urlencoded')
 
     def _calc_data_set_value(self, info, velocity, decision, trusted, behaviosec):
         """
@@ -422,10 +458,10 @@ class AccessSDK:
             params['ah'] = self._get_hash("%s:%s" % (username, password))
         return params
 
-    def _build_url(self, endpoint):
+    def _build_url(self, host, endpoint):
         if not self.host:
             raise ValueError("invalid host: %s" % self.host)
-        return 'https://' + self.host + endpoint
+        return 'https://' + host + endpoint
 
     @staticmethod
     def _validate_state(state):
