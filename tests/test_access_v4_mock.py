@@ -84,17 +84,3 @@ class TestAccessSDK(TestCase):
         response = sdk.get_devices(self.UNIQ)
         self.assertEqual(response, response)
         self.assertIsInstance(response, dict)
-
-    @patch('kount_access.access_sdk.AccessSDK')
-    def test_behaviosec(self, MockAccessSDK):
-
-        merchant_id = 999666
-        behaviosec_host = "api.behavio.kaptcha.com"
-        behaviosec_environment = "sandbox"
-        sdk = MockAccessSDK()
-
-        sdk.behaviosec.return_value = None
-
-        response = sdk.behaviosec(self.SESSION_ID, self.UNIQ, self.TIMING,
-                                  merchant_id, behaviosec_host, behaviosec_environment)
-        self.assertIsNone(response)

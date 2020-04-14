@@ -41,7 +41,7 @@ class AccessSDK:
     # This is the default service version for this SDK - 0400.
     __version__ = '0400'
 
-    BEHAVIOSEC_ENDPOINT = "/behavio/data"
+
     DEVICE_TRUST_BY_SESSION = "/api/devicetrustbysession"
     DEVICE_TRUST_BY_DEVICE = "/api/devicetrustbydevice"
     GET_UNIQUES_ENDPOINT = "/api/getuniques"
@@ -53,8 +53,7 @@ class AccessSDK:
         "info": 1,
         "velocity": 2,
         "decision": 4,
-        "trusted": 8,
-        "behaviosec": 16
+        "trusted": 8
     }
 
     def __init__(self, host, merchant_id, api_key, version=None):
@@ -349,7 +348,7 @@ class AccessSDK:
         return self.__request_get(url, data)
 
     def get_info(self, session, info=None, velocity=None,
-                 decision=None, trusted=None, behaviosec=None,
+                 decision=None, trusted=None,
                  uniq=None, username=None, password=None
                  ):
         """
@@ -358,7 +357,6 @@ class AccessSDK:
         :param velocity should be true if we want velocity in result
         :param decision should be true if we want decision in result
         :param trusted should be true if we want trusted in result
-        :param behaviosec should be true if we want behaviosec info in result
         :param uniq is a customer identifier
         :param session that has already had a device collection made
         :param password
@@ -367,20 +365,17 @@ class AccessSDK:
         """
         self._validate_session(session)
 
-        if not info and not velocity and not decision and not trusted and not behaviosec:
+        if not info and not velocity and not decision and not trusted:
             err_msg = "At least one of the following parameters - " \
-                      "info, velocity, decision, trusted, behaviosec should be true"
+                      "info, velocity, decision, trusted should be true"
             raise ValueError(err_msg)
 
         data = {'v': self.version, 's': session,
-                'i': self._calc_data_set_value(info, velocity, decision, trusted, behaviosec)}
+                'i': self._calc_data_set_value(info, velocity, decision, trusted)}
 
-        if trusted or behaviosec:
+        if trusted:
             self._validate_param(uniq, "invalid uniq: ")
             data['uniq'] = uniq
-
-        if behaviosec:
-            data['m'] = self.merchant_id
 
         if velocity or decision:
             self._validate_param(username, "invalid username: ")
@@ -391,44 +386,15 @@ class AccessSDK:
 
         return self.__request_post(url, data)
 
-    def behaviosec(self, session, uniq, timing, merchant, behavio_host, behavio_environment):
-        """
-        BehavioSec
-        :param behavio_host is BehavioSec host
-        :param behavio_environment is working environment
-        :param session that has already had a device collection made
-        :param uniq is a customer identifier
-        :param timing
-        :param merchant id
-        :return: request result
-        """
-        self._validate_session(session)
-        self._validate_param(uniq, "invalid uniq: ")
-        self._validate_param(timing, "invalid timing")
-        self._validate_param(merchant, "invalid merchant ID")
-        self._validate_param(behavio_host, "invalid behavio host")
-        self._validate_param(behavio_environment, "invalid environment")
 
-        url = self._build_url(behavio_host + '/' + behavio_environment, self.BEHAVIOSEC_ENDPOINT)
 
-        data = {
-            'uniq': uniq,
-            's': session,
-            'timing': timing,
-            'm': merchant
-        }
-
-        logger.info("behaviosec -> uniq: %s, s: %s, timing: %s, m: %s" % (uniq, session, timing, merchant))
-        return self.__request_post(url, data, 'application/x-www-form-urlencoded')
-
-    def _calc_data_set_value(self, info, velocity, decision, trusted, behaviosec):
+    def _calc_data_set_value(self, info, velocity, decision, trusted):
         """
         Calculate i
         :param info:
         :param velocity:
         :param decision:
         :param trusted:
-        :param behaviosec:
         :return: i
         """
         i = 0
@@ -440,8 +406,7 @@ class AccessSDK:
             i += self.DATA_SET['decision']
         if trusted:
             i += self.DATA_SET['trusted']
-        if behaviosec:
-            i += self.DATA_SET['behaviosec']
+
         return i
 
     def _prepare_hashes(self, params, username, password):

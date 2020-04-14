@@ -43,15 +43,11 @@ class TestBasicConnectivity(unittest.TestCase):
     FAKE_TRUSTED_STATE = ""
     FAKE_DEVICE_ID = ""
     FAKE_TIMING = ""
-    FAKE_BEHAVIOSEC_HOST = ""
-    FAKE_BEHAVIOSEC_ENVIRONMENT = ""
     FAKE_MERCHANT_ID = ""
     USERNAME = "test@kount.net"
     PASSWORD = "password"
     UNIQ = "abc111@abc.com"
     DEVICE_ID = "9fbc4b5f963a4a109fa0aebf3dc677c7"
-    BEHAVIOSEC_HOST = "api.behavio.kaptcha.com"
-    BEHAVIOSEC_ENVIRONMENT = "sandbox"
     TIMING = "should_be_string"
 
     @classmethod
@@ -407,29 +403,6 @@ class TestBasicConnectivity(unittest.TestCase):
                                               username=self.USERNAME, password=self.PASSWORD)
             self.assertEqual(result.keys(), expected.keys())
 
-    def test_api_behaviosec(self):
-        self.access_sdk = AccessSDK(server_name, self.merchant_id, self.api_key, self.version)
-
-        self.access_sdk.version = self.version
-        self.assertRaises(ValueError, self.access_sdk.behaviosec, self.FAKE_SESSION, self.UNIQ, self.TIMING,
-                          self.merchant_id, self.BEHAVIOSEC_HOST, self.BEHAVIOSEC_ENVIRONMENT)
-        self.assertRaises(ValueError, self.access_sdk.behaviosec, self.SESSION_ID, self.FAKE_UNIQ, self.TIMING,
-                          self.merchant_id, self.BEHAVIOSEC_HOST, self.BEHAVIOSEC_ENVIRONMENT)
-        self.assertRaises(ValueError, self.access_sdk.behaviosec, self.SESSION_ID, self.UNIQ, self.FAKE_TIMING,
-                          self.merchant_id, self.BEHAVIOSEC_HOST, self.BEHAVIOSEC_ENVIRONMENT)
-        self.assertRaises(ValueError, self.access_sdk.behaviosec, self.SESSION_ID, self.UNIQ, self.TIMING,
-                          self.FAKE_MERCHANT_ID, self.BEHAVIOSEC_HOST, self.BEHAVIOSEC_ENVIRONMENT)
-        self.assertRaises(ValueError, self.access_sdk.behaviosec, self.SESSION_ID, self.UNIQ, self.FAKE_TIMING,
-                          self.merchant_id, self.FAKE_BEHAVIOSEC_HOST, self.BEHAVIOSEC_ENVIRONMENT)
-        self.assertRaises(ValueError, self.access_sdk.behaviosec, self.SESSION_ID, self.UNIQ, self.FAKE_TIMING,
-                          self.merchant_id, self.BEHAVIOSEC_HOST, self.FAKE_BEHAVIOSEC_ENVIRONMENT)
-
-        if self.api_key:
-            expected = None
-            self.access_sdk.version = self.version
-            result = self.access_sdk.behaviosec(self.SESSION_ID, self.UNIQ, self.FAKE_TIMING, self.merchant_id,
-                                                self.BEHAVIOSEC_HOST, self.BEHAVIOSEC_ENVIRONMENT)
-            self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":

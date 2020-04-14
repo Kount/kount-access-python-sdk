@@ -3,5 +3,10 @@ sudo:
 language: python
 python:
   - "3.6"
+  - "3.8"
+
+before_install:
+  - pip install requests
+
 script:
   - pytest
